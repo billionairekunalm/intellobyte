@@ -1,4 +1,2 @@
-export default {
-  images: { formats: ["image/avif", "image/webp"] }, poweredByHeader: false, compress: true,
-  experimental: { cpus: 1, workerThreads: false, staticGenerationMaxConcurrency: 1 },
-};
+// The Framer output lives in ./site; ship it with the serverless function.
+export default { outputFileTracingIncludes: { "/**": ["./site/**/*"] } };
