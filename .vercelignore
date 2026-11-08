@@ -1,0 +1,4 @@
+site/
+backup/
+*.webp.bak
+.gstack/
