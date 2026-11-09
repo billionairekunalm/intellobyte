@@ -7,19 +7,17 @@
     {
       key: "software", label: "Software", blurb: "Business software, dashboards and automation built around your real workflow.",
       items: [
-        { title: "Software Demo 01", desc: "Custom business software walkthrough.", tags: ["Custom Software"], yt: "" }, // PASTE YOUTUBE LINK in yt
-        { title: "Software Demo 02", desc: "Workflow automation in action.", tags: ["Automation"], yt: "" },
+        { title: "Live Trading Competition Platform", desc: "100+ traders, real-time leaderboard and live trading.", tags: ["Real-Time", "FinTech"], yt: "https://youtu.be/CrX_5GviXnE" }, // PASTE YOUTUBE LINK in yt
+        { title: "Investmore", desc: "Stock market class management platform.", tags: ["EdTech", "Management"], yt: "https://youtu.be/LGE78i4-H9g" },
         { title: "Software Demo 03", desc: "Dashboards and reporting.", tags: ["Business Systems"], yt: "" },
-        { title: "Software Demo 04", desc: "Full-stack product demo.", tags: ["Full-Stack"], yt: "" },
       ],
     },
     {
       key: "apps", label: "Apps", blurb: "Mobile and web apps with interfaces people understand at a glance.",
       items: [
-        { title: "App Demo 01", desc: "Mobile app walkthrough.", tags: ["Mobile App"], yt: "" },
+        { title: "Everlush", desc: "Poultry trading app: book live birds and eggs from farms at today's rate.", tags: ["Mobile App", "Marketplace"], yt: "https://youtu.be/Xe-s9ysFaYo" },
         { title: "App Demo 02", desc: "UI/UX and prototype tour.", tags: ["UI/UX"], yt: "" },
         { title: "App Demo 03", desc: "Cross-platform app demo.", tags: ["iOS & Android"], yt: "" },
-        { title: "App Demo 04", desc: "Web app product demo.", tags: ["Web App"], yt: "" },
       ],
     },
     {
