@@ -19,3 +19,22 @@ for await (const f of walk("site")) {
   await writeFile(f, t); n++;
 }
 console.log("demo section installed in", n, "pages");
+
+// Smoother Services accordion open/close: slower, expo-out easing (was a 0.4s ease-in-out tween). Idempotent.
+{
+  const f = "site/_fc/sites/2cxUvBJ9WdQpnSb5BsB7VL/wKdCdYdBgWSD0ogMJUdHCpg5x9_02irOBfc0F__PCCU.Ncr1Zlls.mjs";
+  let t = await readFile(f, "utf8");
+  const a = "Bi={delay:0,duration:.4,ease:[.44,0,.56,1],type:`tween`}", b = "Bi={delay:0,duration:.85,ease:[.16,1,.3,1],type:`tween`}";
+  if (t.includes(a)) { await writeFile(f, t.replace(a, b)); console.log("services accordion easing patched"); }
+}
+
+// Leftover template service titles in variant overrides -> real ones. Idempotent.
+{
+  const fix = [["AI UX & Product Design", "AI & Automation"], ["AI UX &amp; Product Design", "AI &amp; Automation"], ["`Data Engineering `", "`Web Dev & Business Systems`"]];
+  async function* all(d) { for (const e of await readdir(d, { withFileTypes: true })) { const q = join(d, e.name); if (e.isDirectory()) yield* all(q); else if (/\.(html|mjs)$/.test(e.name)) yield q; } }
+  for await (const f of all("site")) {
+    let t = await readFile(f, "utf8"), o = t;
+    for (const [a, b] of fix) t = t.split(a).join(b);
+    if (t !== o) { await writeFile(f, t); console.log("fixed service titles in", f); }
+  }
+}
