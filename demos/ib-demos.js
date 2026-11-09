@@ -15,6 +15,7 @@
     {
       key: "apps", label: "Apps", blurb: "Mobile and web apps with interfaces people understand at a glance.",
       items: [
+        { title: "Hello Sakhee", desc: "The app every woman needs: wellness, health, mindfulness and learning.", tags: ["Mobile App", "Women's Wellness"], yt: "https://youtube.com/shorts/RU4QYq7uXDQ", img: "assets/work-sakhee.webp" },
         { title: "Everlush", desc: "Poultry trading app: book live birds and eggs from farms at today's rate.", tags: ["Mobile App", "Marketplace"], yt: "https://youtu.be/Xe-s9ysFaYo" },
         { title: "App Demo 02", desc: "UI/UX and prototype tour.", tags: ["UI/UX"], yt: "" },
         { title: "App Demo 03", desc: "Cross-platform app demo.", tags: ["iOS & Android"], yt: "" },
@@ -49,11 +50,12 @@
 
   function card(ch, it, i) {
     const id = ytId(it.yt);
-    const bg = id ? `<img class="ibd-img" loading="lazy" alt="" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg">`
+    const bg = it.img ? `<img class="ibd-img" loading="lazy" alt="" src="${BASE}${esc(it.img)}">`
+      : id ? `<img class="ibd-img" loading="lazy" alt="" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg">`
       : it.img ? `<img class="ibd-img" loading="lazy" alt="" src="${BASE}${esc(it.img)}">` : "";
     const soon = id ? "" : '<span class="ibd-soon">Demo coming soon</span>';
     return `<li class="ibd-card" data-k="${ch.key}">
-      <button type="button" class="ibd-btn" ${id ? `data-yt="${id}"` : 'aria-disabled="true"'} aria-label="${id ? "Play demo: " : ""}${esc(it.title)}${id ? "" : " (demo coming soon)"}">
+      <button type="button" class="ibd-btn" ${id ? `data-yt="${id}"${/shorts\//.test(it.yt) ? ' data-short="1"' : ""}` : 'aria-disabled="true"'} aria-label="${id ? "Play demo: " : ""}${esc(it.title)}${id ? "" : " (demo coming soon)"}">
         <span class="ibd-poster">
           <span class="ibd-glyph" aria-hidden="true">${ICONS[ch.key]}</span>
           <span class="ibd-num" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
@@ -93,12 +95,12 @@
 
   // ---- lightbox -------------------------------------------------------------------------
   let lastFocus = null;
-  function openVideo(id, btn) {
+  function openVideo(id, btn, short) {
     lastFocus = btn;
     const o = document.createElement("div");
     o.className = "ibd-lb"; o.setAttribute("role", "dialog"); o.setAttribute("aria-modal", "true"); o.setAttribute("aria-label", "Demo video");
     o.innerHTML = `<button type="button" class="ibd-x" aria-label="Close video">&times;</button>
-      <div class="ibd-frame"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1" title="Demo video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
+      <div class="ibd-frame${short ? " short" : ""}"><iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1" title="Demo video" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe></div>`;
     const close = () => { o.remove(); document.removeEventListener("keydown", key, true); document.documentElement.style.overflow = ""; lastFocus && lastFocus.focus && lastFocus.focus(); };
     const key = (e) => { if (e.key === "Escape") close(); if (e.key === "Tab") { e.preventDefault(); o.querySelector(".ibd-x").focus(); } };
     o.addEventListener("click", (e) => { if (e.target === o || e.target.closest(".ibd-x")) close(); });
@@ -157,7 +159,7 @@
   function init(s) {
     s.addEventListener("click", (e) => {
       const b = e.target.closest(".ibd-btn");
-      if (b && b.dataset.yt) return openVideo(b.dataset.yt, b);
+      if (b && b.dataset.yt) return openVideo(b.dataset.yt, b, b.dataset.short);
       const t = e.target.closest(".ibd-tabs button");
       if (t) {
         const i = +t.dataset.i, top = s.getBoundingClientRect().top + scrollY, total = s.offsetHeight - innerHeight;

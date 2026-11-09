@@ -70,3 +70,4 @@
 @media(max-width:700px){.ibd-tabs{width:100%;justify-content:space-between}.ibd-tabs button{padding:8px 10px;font-size:13px;flex:1;justify-content:center}.ibd-big{display:none}.ibd-pin{border-radius:26px;margin:0 8px}.ibd-chead p{display:none}.ibd-num{font-size:40px}}
 /* keep only one featured project */
 [data-framer-name="Featured Works"] a.framer-13tcklb~a.framer-13tcklb{display:none!important}
+.ibd-frame.short{aspect-ratio:9/16;width:auto;height:min(88vh,100%);max-width:100%;margin:0 auto}
