@@ -52,7 +52,7 @@
   function card(ch, it, i) {
     const id = ytId(it.yt);
     const bg = it.img ? `<img class="ibd-img" loading="lazy" alt="" src="${BASE}${esc(it.img)}">`
-      : id ? `<img class="ibd-img" loading="lazy" alt="" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg">`
+      : id ? `<img class="ibd-img" loading="lazy" alt="" src="https://i.ytimg.com/vi/${id}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${id}/mqdefault.jpg'">`
       : it.img ? `<img class="ibd-img" loading="lazy" alt="" src="${BASE}${esc(it.img)}">` : "";
     const soon = id ? "" : '<span class="ibd-soon">Demo coming soon</span>';
     return `<li class="ibd-card" data-k="${ch.key}" style="--i:${i}">
@@ -185,6 +185,14 @@
       addEventListener("pointerup", () => { if (!down) return; down = false; tr.classList.remove("drag"); if (moved) setTimeout(() => (moved = false), 0); });
       tr.addEventListener("click", (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); } }, true);
     });
+    s.addEventListener("pointermove", (e) => { // premium 3D tilt + light follow, mouse only
+      if (e.pointerType !== "mouse" || reduce.matches) return;
+      const b = e.target.closest(".ibd-btn"); if (!b || b.closest(".drag")) return;
+      const r = b.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      b.style.setProperty("--rx", ((0.5 - y) * 7).toFixed(2) + "deg"); b.style.setProperty("--ry", ((x - 0.5) * 9).toFixed(2) + "deg");
+      b.style.setProperty("--mx", (x * 100).toFixed(1) + "%"); b.style.setProperty("--my", (y * 100).toFixed(1) + "%");
+    });
+    s.addEventListener("pointerout", (e) => { const b = e.target.closest(".ibd-btn"); if (b && !b.contains(e.relatedTarget)) { b.style.setProperty("--rx", "0deg"); b.style.setProperty("--ry", "0deg"); } });
     s.addEventListener("click", (e) => {
       const a = e.target.closest(".ibd-arr");
       if (a) { const tr = a.closest(".ibd-ch").querySelector(".ibd-track"), w = tr.querySelector(".ibd-card").offsetWidth + 20; return tr.scrollBy({ left: +a.dataset.d * w * 1.5, behavior: "smooth" }); }
