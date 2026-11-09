@@ -10,6 +10,7 @@
         { title: "Live Trading Competition Platform", desc: "100+ traders, real-time leaderboard and live trading.", tags: ["Real-Time", "FinTech"], yt: "https://youtu.be/CrX_5GviXnE" }, // PASTE YOUTUBE LINK in yt
         { title: "Investmore", desc: "Stock market class management platform.", tags: ["EdTech", "Management"], yt: "https://youtu.be/LGE78i4-H9g" },
         { title: "Software Demo 03", desc: "Dashboards and reporting.", tags: ["Business Systems"], yt: "" },
+        { title: "Software Demo 04", desc: "Full-stack product demo.", tags: ["Full-Stack"], yt: "" },
       ],
     },
     {
@@ -54,7 +55,7 @@
       : id ? `<img class="ibd-img" loading="lazy" alt="" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg">`
       : it.img ? `<img class="ibd-img" loading="lazy" alt="" src="${BASE}${esc(it.img)}">` : "";
     const soon = id ? "" : '<span class="ibd-soon">Demo coming soon</span>';
-    return `<li class="ibd-card" data-k="${ch.key}">
+    return `<li class="ibd-card" data-k="${ch.key}" style="--i:${i}">
       <button type="button" class="ibd-btn" ${id ? `data-yt="${id}"${/shorts\//.test(it.yt) ? ' data-short="1"' : ""}` : 'aria-disabled="true"'} aria-label="${id ? "Play demo: " : ""}${esc(it.title)}${id ? "" : " (demo coming soon)"}">
         <span class="ibd-poster">
           <span class="ibd-glyph" aria-hidden="true">${ICONS[ch.key]}</span>
@@ -84,11 +85,13 @@
         <div class="ibd-stage">
           ${CHAPTERS.map((c, i) => `
           <div class="ibd-ch" data-i="${i}">
-            <div class="ibd-chead"><span class="ibd-big" aria-hidden="true">0${i + 1}</span><div><h3>${c.label}</h3><p>${esc(c.blurb)}</p></div></div>
-            <ul class="ibd-track">${c.items.map((it, j) => card(c, it, j)).join("")}</ul>
+            <div class="ibd-chead"><span class="ibd-big" aria-hidden="true">0${i + 1}</span><div><h3>${c.label}</h3><p>${esc(c.blurb)}</p></div>
+              <div class="ibd-nav"><button type="button" class="ibd-arr" data-d="-1" aria-label="Previous ${c.label} demos">&#8592;</button><button type="button" class="ibd-arr" data-d="1" aria-label="Next ${c.label} demos">&#8594;</button></div></div>
+            <ul class="ibd-track" tabindex="0" aria-label="${c.label} demos, scroll sideways">${c.items.map((it, j) => card(c, it, j)).join("")}</ul>
+            <div class="ibd-prog" aria-hidden="true"><i></i></div>
           </div>`).join("")}
         </div>
-        <div class="ibd-foot"><span class="ibd-count"><b>01</b> / 03</span><span class="ibd-bar"><i></i></span><span class="ibd-hint">Scroll</span></div>
+        <div class="ibd-foot"><span class="ibd-count"><b>01</b> / 03</span><span class="ibd-bar"><i></i></span><span class="ibd-hint"></span></div>
       </div>`;
     return s;
   }
@@ -116,7 +119,14 @@
   function update() {
     raf = 0;
     const s = document.getElementById("ib-demos");
-    if (!s || s.classList.contains("ibd-static")) return;
+    if (!s) return;
+    if (s.classList.contains("ibd-static")) { // highlight the tab of the chapter nearest the viewport middle
+      let best = 0, bd = 1e9;
+      s.querySelectorAll(".ibd-ch").forEach((ch, i) => { const r = ch.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (d < bd) { bd = d; best = i; } });
+      s.dataset.active = best;
+      s.querySelectorAll(".ibd-tabs button").forEach((b, i) => b.classList.toggle("on", i === best));
+      return;
+    }
     const r = s.getBoundingClientRect(), total = r.height - innerHeight;
     if (r.bottom < -200 || r.top > innerHeight + 200) return;
     const p = clamp(-r.top / total, 0, 1), c = p * 3, idx = Math.min(2, Math.floor(c)), q = c - idx;
@@ -150,13 +160,35 @@
   function size() {
     const s = document.getElementById("ib-demos");
     if (!s) return;
-    const small = innerWidth < 700;
-    s.classList.toggle("ibd-static", reduce.matches);
-    s.style.height = reduce.matches ? "auto" : Math.round(innerHeight * (small ? 4.4 : 4.8)) + "px";
-    tick();
+    s.classList.add("ibd-static"); // normal page scroll; each row scrolls sideways by swipe, drag or arrows
+    s.style.height = "auto";
+    s.querySelectorAll(".ibd-track").forEach(sync);
+  }
+
+  function sync(tr) {
+    const ch = tr.closest(".ibd-ch"), max = tr.scrollWidth - tr.clientWidth;
+    ch.querySelector('[data-d="-1"]').disabled = tr.scrollLeft < 4;
+    ch.querySelector('[data-d="1"]').disabled = tr.scrollLeft > max - 4;
+    ch.querySelector(".ibd-prog i").style.transform = `scaleX(${max > 0 ? (0.18 + 0.82 * tr.scrollLeft / max).toFixed(3) : 1})`;
+    ch.classList.toggle("ibd-fit", max <= 4 && tr.clientWidth > 0);
   }
 
   function init(s) {
+    const io = "IntersectionObserver" in window && new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: 0.25 });
+    s.querySelectorAll(".ibd-track").forEach((tr) => {
+      io ? io.observe(tr) : tr.classList.add("in");
+      setTimeout(() => tr.classList.add("in"), 4000); // never leave cards hidden if the observer is late
+      tr.addEventListener("scroll", () => sync(tr), { passive: true });
+      let down = false, sx = 0, sl = 0, moved = false;
+      tr.addEventListener("pointerdown", (e) => { if (e.pointerType !== "mouse") return; down = true; moved = false; sx = e.clientX; sl = tr.scrollLeft; });
+      addEventListener("pointermove", (e) => { if (!down) return; const dx = e.clientX - sx; if (Math.abs(dx) > 5) { moved = true; tr.classList.add("drag"); } if (moved) tr.scrollLeft = sl - dx; });
+      addEventListener("pointerup", () => { if (!down) return; down = false; tr.classList.remove("drag"); if (moved) setTimeout(() => (moved = false), 0); });
+      tr.addEventListener("click", (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); } }, true);
+    });
+    s.addEventListener("click", (e) => {
+      const a = e.target.closest(".ibd-arr");
+      if (a) { const tr = a.closest(".ibd-ch").querySelector(".ibd-track"), w = tr.querySelector(".ibd-card").offsetWidth + 20; return tr.scrollBy({ left: +a.dataset.d * w * 1.5, behavior: "smooth" }); }
+    });
     s.addEventListener("click", (e) => {
       const b = e.target.closest(".ibd-btn");
       if (b && b.dataset.yt) return openVideo(b.dataset.yt, b, b.dataset.short);
@@ -186,6 +218,7 @@
   setInterval(mount, 600); // safety net: Framer hydrates after this script runs
   addEventListener("scroll", tick, { passive: true });
   addEventListener("resize", size);
+  addEventListener("load", size);
   reduce.addEventListener && reduce.addEventListener("change", size);
   mount();
 })();
