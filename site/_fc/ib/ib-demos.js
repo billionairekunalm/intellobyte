@@ -25,6 +25,8 @@
     {
       key: "websites", label: "Websites", blurb: "Fast, modern websites we designed and shipped for clients across industries.",
       items: [
+        { title: "Gargee's Dormitory", desc: "AC & Non-AC dormitory in CBD Belapur, Navi Mumbai: 3D hero, WhatsApp booking.", tags: ["Hospitality", "Navi Mumbai"], yt: "", url: "https://www.gargeesdorms.com", img: "assets/web-gargees.webp" },
+        { title: "Vishwaharsh Ayurved", desc: "Ayurvedic clinic website in Chinchwad, Pune with online consultation booking.", tags: ["Healthcare", "Ayurveda"], yt: "", url: "https://www.vishwaharshayurved.com", img: "assets/web-vishwaharsh.webp" },
         { title: "DYP Incubation Centre", desc: "Platform for an incubator and education program.", tags: ["Education"], yt: "", img: "assets/work-dyp.webp" },
         { title: "RamaAstra", desc: "Website for an aerospace venture.", tags: ["Aerospace"], yt: "", img: "assets/work-ramaastra.webp" },
         { title: "Chhaya Dental Care", desc: "Healthcare website for a dental clinic.", tags: ["Healthcare"], yt: "" },
@@ -47,6 +49,7 @@
   const lerp = (a, b, t) => a + (b - a) * t;
   const easeOut = (t) => 1 - Math.pow(1 - t, 3);
   const easeIn = (t) => t * t * t;
+  const ARROW = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>';
   const reduce = matchMedia("(prefers-reduced-motion: reduce)");
 
   function card(ch, it, i) {
@@ -54,14 +57,17 @@
     const bg = it.img ? `<img class="ibd-img" loading="lazy" alt="" src="${BASE}${esc(it.img)}">`
       : id ? `<img class="ibd-img" loading="lazy" alt="" src="https://i.ytimg.com/vi/${id}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${id}/mqdefault.jpg'">`
       : it.img ? `<img class="ibd-img" loading="lazy" alt="" src="${BASE}${esc(it.img)}">` : "";
-    const soon = id ? "" : '<span class="ibd-soon">Demo coming soon</span>';
+    const soon = id ? "" : it.url ? '<span class="ibd-soon">Live website</span>' : '<span class="ibd-soon">Demo coming soon</span>';
+    const attrs = id ? `data-yt="${id}"${/shorts\//.test(it.yt) ? ' data-short="1"' : ""} aria-label="Play demo: ${esc(it.title)}"`
+      : it.url ? `data-url="${esc(it.url)}" aria-label="Open website: ${esc(it.title)}"`
+      : `aria-disabled="true" aria-label="${esc(it.title)} (demo coming soon)"`;
     return `<li class="ibd-card" data-k="${ch.key}" style="--i:${i}">
-      <button type="button" class="ibd-btn" ${id ? `data-yt="${id}"${/shorts\//.test(it.yt) ? ' data-short="1"' : ""}` : 'aria-disabled="true"'} aria-label="${id ? "Play demo: " : ""}${esc(it.title)}${id ? "" : " (demo coming soon)"}">
+      <button type="button" class="ibd-btn" ${attrs}>
         <span class="ibd-poster">
           <span class="ibd-glyph" aria-hidden="true">${ICONS[ch.key]}</span>
           <span class="ibd-num" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
           ${bg}${soon}
-          <span class="ibd-play" aria-hidden="true">${PLAY}</span>
+          <span class="ibd-play" aria-hidden="true">${it.url && !id ? ARROW : PLAY}</span>
         </span>
         <span class="ibd-meta">
           <span class="ibd-tags">${it.tags.map((t) => `<i>${esc(t)}</i>`).join("")}</span>
@@ -199,6 +205,7 @@
     });
     s.addEventListener("click", (e) => {
       const b = e.target.closest(".ibd-btn");
+      if (b && b.dataset.url) return window.open(b.dataset.url, "_blank", "noopener");
       if (b && b.dataset.yt) return openVideo(b.dataset.yt, b, b.dataset.short);
       const t = e.target.closest(".ibd-tabs button");
       if (t) {
