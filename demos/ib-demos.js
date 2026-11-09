@@ -173,11 +173,12 @@
   // ---- mount: insert after the template Testimonials block, survive Framer client navigation --
   function mount() {
     const t = document.querySelector('[data-framer-name="Testimonials"]');
-    if (!t) return;
+    const f = document.querySelector('[data-framer-name="Featured Works"]');
+    if (!t || !f) return;
     if (!t.hasAttribute("data-ib-hidden")) t.setAttribute("data-ib-hidden", ""); // React may re-render the block
     if (document.getElementById("ib-demos")) return;
     const s = build();
-    t.insertAdjacentElement("afterend", s);
+    f.insertAdjacentElement("afterend", s); // right after the single featured project
     init(s);
   }
   let mq = 0;
