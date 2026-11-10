@@ -31,7 +31,6 @@
         { title: "RamaAstra", desc: "Website for an aerospace venture.", tags: ["Aerospace"], yt: "", url: "https://www.ramaastra.com", img: "assets/web-ramaastra-v2.webp" },
         { title: "Imaging Dental Solutions", desc: "Website for a diagnostic imaging network offering CBCT and OPG scans across Pune.", tags: ["Healthcare","Dental"], yt: "", url: "https://imagingdentalsolutions.com", img: "assets/web-imagingdental.webp" },
         { title: "Chhaya Clinic & Dental Care", desc: "Website for a dental clinic in Katraj, Pune with online appointment booking.", tags: ["Healthcare","Dental"], yt: "", url: "https://www.chhayaclinicanddentalcare.com", img: "assets/web-chhaya.webp" },
-        { title: "Elviko AI", desc: "Website for an AI company.", tags: ["AI"], yt: "" },
       ],
     },
     {
