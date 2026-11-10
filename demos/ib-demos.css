@@ -122,11 +122,11 @@
 .ibf-host>*:not(.ibf){display:none!important}
 .ibf{width:100%;padding:28px 32px 32px;font-family:Urbanist,sans-serif;color:#09090b;box-sizing:border-box}
 .ibf-tag{display:inline-block;font:600 13px/1 Urbanist,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:#6c3ef5;margin-bottom:22px}
-.ibf-row{display:flex;gap:40px;flex-wrap:wrap}
-.ibf-p{margin:0;display:flex;align-items:center;gap:22px;flex:1 1 320px;min-width:0}
-.ibf-p img{width:200px;aspect-ratio:3/4;object-fit:cover;border-radius:22px;box-shadow:0 14px 30px rgba(0,0,0,.28);flex:none;display:block}
+.ibf-row{display:flex;gap:clamp(16px,4vw,48px);flex-wrap:nowrap;align-items:flex-start}
+.ibf-p{margin:0;display:flex;flex-direction:column;align-items:flex-start;gap:16px;flex:1 1 0;min-width:0}
+.ibf-p img{width:100%;max-width:240px;aspect-ratio:3/4;object-fit:cover;border-radius:22px;box-shadow:0 14px 30px rgba(0,0,0,.28);display:block}
 .ibf-p b{display:block;font:700 clamp(22px,2.4vw,30px)/1.15 Urbanist,sans-serif;letter-spacing:-.01em}
 .ibf-p small{display:block;margin-top:6px;font:500 13px/1.2 Urbanist,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#71717a}
-@media(max-width:560px){.ibf{padding:22px 20px 26px}.ibf-p img{width:120px}.ibf-row{gap:26px}}
+@media(max-width:560px){.ibf{padding:22px 16px 26px}.ibf-p b{font-size:19px}.ibf-p small{font-size:11px}}
 
 .ibacc{overflow:clip;overflow-clip-margin:16px}
