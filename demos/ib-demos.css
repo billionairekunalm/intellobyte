@@ -170,3 +170,16 @@ html.ib-anim *{backdrop-filter:none!important;-webkit-backdrop-filter:none!impor
 @keyframes ibtspin{to{transform:rotate(1turn)}}
 @keyframes ibtping{0%{box-shadow:0 0 0 0 rgba(109,74,255,.5)}70%,100%{box-shadow:0 0 0 16px rgba(109,74,255,0)}}
 @media(prefers-reduced-motion:reduce){.ibt-n,.ibt-n:before{animation:none}}
+
+/* Team strip v2: circles, slide out from the first one when scrolled into view */
+.ibt{--sz:64px;--gp:12px}
+.ibt-row{flex-wrap:nowrap}
+.ibt-row img,.ibt-n{width:var(--sz)!important;height:var(--sz)!important;border-radius:50%!important;flex:none;position:relative;z-index:calc(6 - var(--i));
+  transform:translateX(calc(var(--i)*(var(--sz) + var(--gp))*-1)) scale(.55);opacity:0;
+  transition:transform .95s cubic-bezier(.34,1.35,.64,1) calc(var(--i)*.12s),opacity .5s ease calc(var(--i)*.12s)}
+.ibt-row img:first-child{transform:none;opacity:1}
+.ibt-go .ibt-row img,.ibt-go .ibt-n{transform:none;opacity:1}
+.ibt-go .ibt-row img:hover,.ibt-go .ibt-n:hover{transform:translateY(-4px) scale(1.05)!important;transition-delay:0s}
+.ibt-row img{border:2px solid rgba(255,255,255,.2)}
+@media(max-width:480px){.ibt{--sz:52px;--gp:8px}.ibt-n b,.ibt-n i{font-size:18px}}
+@media(prefers-reduced-motion:reduce){.ibt-row img,.ibt-n{transition:none}}
