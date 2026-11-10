@@ -241,7 +241,7 @@
     openVideo(FEAT.yt, a, false);
   }, true);
   // Founders card: replaces the template quote with a "Founders" label and both photos, each with its name beside it
-  const FOUNDERS = [{ name: "Kunal Manjare", role: "CEO", img: null }, { name: "Pranav Patil", role: "CTO", img: "/_fc/ib/assets/pranav-founder-v2.webp" }];
+  const FOUNDERS = [{ name: "Kunal Manjare", role: "CEO", img: null }, { name: "Pranav Patil", role: "CTO", img: "/_fc/ib/assets/pranav-founder-v3.webp" }];
   function patchQuote() {
     const k = [...document.querySelectorAll("p")].find((p) => p.textContent.trim() === "Kunal Manjare");
     const card = k && k.closest('[data-framer-name="TrustMetrics Block"]');
