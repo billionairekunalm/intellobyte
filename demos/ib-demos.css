@@ -134,4 +134,5 @@
 [data-framer-name="Left- LocationCTA"]{align-self:stretch;height:auto!important;min-height:660px}
 
 /* mobile: show the whole globe inside the location card instead of a cropped top slice */
-@media(max-width:809px){[data-framer-name="Left- LocationCTA"]{min-height:0!important;height:450px!important;overflow:hidden}[data-framer-name="Left- LocationCTA"] [data-framer-name="Globe"]>[class*="-container"]{scale:1.3;translate:0 30px}}
+@media(max-width:809px){[data-framer-name="Left- LocationCTA"]{min-height:0!important;height:450px!important;overflow:hidden}[data-framer-name="Left- LocationCTA"] [data-framer-name="Globe"]>[class*="-container"]{scale:1.3;translate:0 70px}}
+@media(max-width:809px){[data-framer-name="Left- LocationCTA"] [data-framer-name="Top+Button"]{position:relative;z-index:3}}
