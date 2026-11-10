@@ -134,4 +134,4 @@
 [data-framer-name="Left- LocationCTA"]{align-self:stretch;height:auto!important;min-height:660px}
 
 /* mobile: show the whole globe inside the location card instead of a cropped top slice */
-@media(max-width:809px){[data-framer-name="Left- LocationCTA"] [data-framer-name="Globe"]>[class*="-container"]{scale:.82;translate:0 -8px}}
+@media(max-width:809px){[data-framer-name="Left- LocationCTA"] [data-framer-name="Globe"]>[class*="-container"]{scale:1.3;translate:0 64px}}
