@@ -240,18 +240,25 @@
     e.preventDefault(); e.stopPropagation();
     openVideo(FEAT.yt, a, false);
   }, true);
-  // Quote card: add Pranav Patil (CTO) under Kunal's, cloned from the template card so styling matches exactly
-  const QUOTE = { img: "/_fc/ib/assets/pranav-quote.webp", name: "Pranav Patil", role: "CTO", text: "Reliable, scalable software, built around how your business really works." };
+  // Quote card: both founders in the one template card (Kunal + Pranav photos side by side, two name lines)
+  const QUOTE = { img: "/_fc/ib/assets/pranav-quote.webp", name: "Pranav Patil", role: "Founder & CTO", kRole: "Founder & CEO" };
   function patchQuote() {
     const k = [...document.querySelectorAll("p")].find((p) => p.textContent.trim() === "Kunal Manjare");
     const card = k && k.closest('[data-framer-name="TrustMetrics Block"]');
-    if (!card || card.hasAttribute("data-ib-quote") || card.parentElement.querySelector("[data-ib-quote]")) return;
-    const c = card.cloneNode(true);
-    c.setAttribute("data-ib-quote", "");
-    const t = [...c.querySelectorAll("p")];
-    t.forEach((p) => { const v = p.textContent.trim(); if (v === "Kunal Manjare") p.textContent = QUOTE.name; else if (v === "CEO") p.textContent = QUOTE.role; else if (v === "We make good projects in efficient prices.") p.textContent = QUOTE.text; });
-    c.querySelectorAll("img").forEach((i) => { if (/SXSxBewFpUbMT1trajLleO10P3Y/.test(i.src)) { i.removeAttribute("srcset"); i.removeAttribute("sizes"); i.src = QUOTE.img; } });
-    card.insertAdjacentElement("afterend", c);
+    if (!card || card.hasAttribute("data-ib-quote")) return;
+    const photo = card.querySelector(".framer-1rvd1ad"), intro = k.closest('[data-framer-name="Introduction"]'), text = intro && intro.parentElement;
+    if (!photo || !intro || !text) return;
+    card.setAttribute("data-ib-quote", "");
+    const p2 = photo.cloneNode(true);
+    p2.querySelectorAll("img").forEach((i) => { i.removeAttribute("srcset"); i.removeAttribute("sizes"); i.src = QUOTE.img; });
+    p2.classList.add("ibq-p2");
+    photo.style.position = "relative"; photo.style.zIndex = "1";
+    photo.insertAdjacentElement("afterend", p2);
+    text.style.flex = "1 1 0"; text.style.minWidth = "0"; text.style.width = "auto";
+    const i2 = intro.cloneNode(true);
+    [...i2.querySelectorAll("p")].forEach((p) => { const v = p.textContent.trim(); if (v === "Kunal Manjare") p.textContent = QUOTE.name; else if (v === "CEO") p.textContent = QUOTE.role; });
+    [...intro.querySelectorAll("p")].forEach((p) => { if (p.textContent.trim() === "CEO") p.textContent = QUOTE.kRole; });
+    intro.insertAdjacentElement("afterend", i2);
   }
   function mount() {
     const t = document.querySelector('[data-framer-name="Testimonials"]');

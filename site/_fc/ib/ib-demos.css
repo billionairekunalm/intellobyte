@@ -119,3 +119,6 @@
 .ibd-static .ibd-track.in .ibd-card{opacity:1;filter:none;transition:opacity .8s ease,filter .8s ease;transition-delay:calc(var(--i)*120ms + 150ms)}
 @media(prefers-reduced-motion:reduce){.ibd-static .ibd-card{opacity:1;filter:none}.ibd-btn,.ibd-btn:hover .ibd-poster::before{transform:none;transition:none}}
 .ibd-static .ibd-track{align-items:stretch}.ibd-card{display:flex}.ibd-btn{height:auto;flex:1}.ibd-meta{align-content:start}
+
+.ibq-p2{margin-left:-44px;position:relative;z-index:0}
+@media(max-width:809px){.ibq-p2{margin-left:0}}
