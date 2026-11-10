@@ -240,10 +240,24 @@
     e.preventDefault(); e.stopPropagation();
     openVideo(FEAT.yt, a, false);
   }, true);
+  // Quote card: add Pranav Patil (CTO) under Kunal's, cloned from the template card so styling matches exactly
+  const QUOTE = { img: "/_fc/ib/assets/pranav-quote.webp", name: "Pranav Patil", role: "CTO", text: "Reliable, scalable software, built around how your business really works." };
+  function patchQuote() {
+    const k = [...document.querySelectorAll("p")].find((p) => p.textContent.trim() === "Kunal Manjare");
+    const card = k && k.closest('[data-framer-name="TrustMetrics Block"]');
+    if (!card || card.hasAttribute("data-ib-quote") || card.parentElement.querySelector("[data-ib-quote]")) return;
+    const c = card.cloneNode(true);
+    c.setAttribute("data-ib-quote", "");
+    const t = [...c.querySelectorAll("p")];
+    t.forEach((p) => { const v = p.textContent.trim(); if (v === "Kunal Manjare") p.textContent = QUOTE.name; else if (v === "CEO") p.textContent = QUOTE.role; else if (v === "We make good projects in efficient prices.") p.textContent = QUOTE.text; });
+    c.querySelectorAll("img").forEach((i) => { if (/SXSxBewFpUbMT1trajLleO10P3Y/.test(i.src)) { i.removeAttribute("srcset"); i.removeAttribute("sizes"); i.src = QUOTE.img; } });
+    card.insertAdjacentElement("afterend", c);
+  }
   function mount() {
     const t = document.querySelector('[data-framer-name="Testimonials"]');
     const f = document.querySelector('[data-framer-name="Featured Works"]');
     if (f) patchFeatured(f);
+    patchQuote();
     if (!t || !f) return;
     if (!t.hasAttribute("data-ib-hidden")) t.setAttribute("data-ib-hidden", ""); // React may re-render the block
     if (document.getElementById("ib-demos")) return;
