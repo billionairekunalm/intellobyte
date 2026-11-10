@@ -38,3 +38,14 @@ console.log("demo section installed in", n, "pages");
     if (t !== o) { await writeFile(f, t); console.log("fixed service titles in", f); }
   }
 }
+
+// Services section: swap the four template images (one per service, in order) for Intellobyte's. Idempotent.
+{
+  const old = ["N7WdKszYpXppuGfH2FoUpbIP2tw", "tgFn5KOHxuVzRnxxY5K6e8rrbc", "VNUMGxu8bHPlCHeUaFBUKKuh2OQ", "LQzz6Xgeq2bSRwjEyr5inS0xDw4"];
+  async function* all(d) { for (const e of await readdir(d, { withFileTypes: true })) { const q = join(d, e.name); if (e.isDirectory()) yield* all(q); else if (/\.(html|mjs)$/.test(e.name)) yield q; } }
+  for await (const f of all("site")) {
+    let t = await readFile(f, "utf8"), o = t;
+    old.forEach((id, i) => { t = t.split(`/_fc/images/${id}.svg`).join(`/_fc/ib/svc/svc-${i + 1}.webp`); });
+    if (t !== o) { await writeFile(f, t); console.log("services images swapped in", f); }
+  }
+}
