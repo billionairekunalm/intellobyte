@@ -370,8 +370,20 @@
       const el = document.createElement("div");
       el.className = "ibt";
       if (t) el.style.color = getComputedStyle(t).color;
-      el.innerHTML = `<div class="ibt-row">${[1, 2, 3, 4].map((i) => `<img src="${BASE}assets/team-more-${i}.webp" alt="Intellobyte team member" width="64" height="64">`).join("")}<span class="ibt-n">12+</span></div><p>12+ people team</p>`;
+      el.innerHTML = `<div class="ibt-row">${[1, 2, 3, 4].map((i) => `<img src="${BASE}assets/team-more-${i}.webp" alt="Intellobyte team member" width="64" height="64">`).join("")}<span class="ibt-n" aria-label="12 plus"><b>12</b><i>+</i></span></div><p>12+ people team</p>`;
       c.insertAdjacentElement("afterend", el);
+      // count 0 -> 12 once the badge scrolls into view
+      const b = el.querySelector(".ibt-n b");
+      if (reduce.matches || !("IntersectionObserver" in window)) return;
+      b.textContent = "0";
+      const io = new IntersectionObserver((es) => {
+        if (!es[0].isIntersecting) return;
+        io.disconnect();
+        const t0 = performance.now();
+        (function f(t) { const k = Math.min(1, (t - t0) / 1400); b.textContent = Math.round(12 * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(f); })(t0);
+        setTimeout(() => { b.textContent = "12"; }, 1700); // in case frames are throttled
+      }, { threshold: 0.6 });
+      io.observe(el);
     });
   }
 
