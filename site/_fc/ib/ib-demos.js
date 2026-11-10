@@ -323,6 +323,21 @@
     });
   }
 
+
+  // "Trusted by" strip: replace Framer's placeholder logos with client logos (pre-greyed in assets)
+  const LOGOS = [["imaging", .99], ["investmore", 1.59], ["vishwaharsh", .95], ["everlush", 1.12], ["ramaastra", 1.17], ["dyp", 1], ["heimstadt", 1.5], ["gdm", 1], ["gargees", 2.07]];
+  function patchLogos() {
+    document.querySelectorAll(".framer-662aja:not([data-ib-logos])").forEach((w) => {
+      w.setAttribute("data-ib-logos", "");
+      const li = LOGOS.map(([n, r]) => `<li><img src="${BASE}assets/logo-${n}.webp" alt="" style="height:${r < 1.3 ? 46 : r < 1.8 ? 40 : 34}px"></li>`).join("");
+      const box = document.createElement("div");
+      box.className = "ibl";
+      box.setAttribute("aria-label", "Brands we have worked with");
+      box.innerHTML = `<ul>${li}${li}</ul>`;
+      w.appendChild(box);
+    });
+  }
+
   function mount() {
     const t = document.querySelector('[data-framer-name="Testimonials"]');
     const f = document.querySelector('[data-framer-name="Featured Works"]');
@@ -330,6 +345,7 @@
     dedupePills();
     patchQuote();
     patchSocials();
+    patchLogos();
     if (!t || !f) return;
     if (!t.hasAttribute("data-ib-hidden")) t.setAttribute("data-ib-hidden", ""); // React may re-render the block
     if (document.getElementById("ib-demos")) return;
