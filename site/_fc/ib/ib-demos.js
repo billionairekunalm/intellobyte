@@ -27,7 +27,7 @@
       items: [
         { title: "Gargee's Dormitory", desc: "AC & Non-AC dormitory in CBD Belapur, Navi Mumbai: 3D hero, WhatsApp booking.", tags: ["Hospitality", "Navi Mumbai"], yt: "", url: "https://www.gargeesdorms.com", img: "assets/web-gargees-v2.webp" },
         { title: "Vishwaharsh Ayurved", desc: "Ayurvedic clinic website in Chinchwad, Pune with online consultation booking.", tags: ["Healthcare", "Ayurveda"], yt: "", url: "https://www.vishwaharshayurved.com", img: "assets/web-vishwaharsh-v3.webp" },
-        { title: "DYP Incubation Centre", desc: "Platform for an incubator and education program.", tags: ["Education"], yt: "", img: "assets/work-dyp.webp" },
+        { title: "DYP Incubation Centre", desc: "Platform for an incubator and education program.", tags: ["Education"], yt: "", url: "https://www.dypdsif.org", img: "assets/web-dyp-v2.webp" },
         { title: "RamaAstra", desc: "Website for an aerospace venture.", tags: ["Aerospace"], yt: "", url: "https://www.ramaastra.com", img: "assets/web-ramaastra-v2.webp" },
         { title: "Imaging Dental Solutions", desc: "Website for a diagnostic imaging network offering CBCT and OPG scans across Pune.", tags: ["Healthcare","Dental"], yt: "", url: "https://imagingdentalsolutions.com", img: "assets/web-imagingdental.webp" },
         { title: "Chhaya Clinic & Dental Care", desc: "Website for a dental clinic in Katraj, Pune with online appointment booking.", tags: ["Healthcare","Dental"], yt: "", url: "https://www.chhayaclinicanddentalcare.com", img: "assets/web-chhaya.webp" },
