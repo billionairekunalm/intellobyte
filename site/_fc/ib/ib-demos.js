@@ -7,7 +7,7 @@
     {
       key: "software", label: "Software", blurb: "Business software, dashboards and automation built around your real workflow.",
       items: [
-        { title: "Live Trading Competition Platform", desc: "100+ traders, real-time leaderboard and live trading.", tags: ["Real-Time", "FinTech"], yt: "https://youtu.be/CrX_5GviXnE", img: "assets/software-trading.webp" }, // PASTE YOUTUBE LINK in yt
+        { title: "Live Trading Competition Platform", desc: "100+ traders, real-time leaderboard and live trading.", tags: ["Real-Time", "FinTech"], yt: "https://youtu.be/CrX_5GviXnE", img: "assets/software-trading-v2.webp" }, // PASTE YOUTUBE LINK in yt
         { title: "Investmore", desc: "Stock market class management platform.", tags: ["EdTech", "Management"], yt: "https://youtu.be/LGE78i4-H9g" },
         { title: "CBCTOne", desc: "DICOM file sharing and viewer platform for dental and medical imaging.", tags: ["Healthcare", "DICOM"], yt: "https://youtu.be/S1Dv728jDqg", img: "assets/software-cbctone.webp" },
         { title: "CBCT Center Software", desc: "Run every imaging center from one screen: dentist app, technician, radiologist and admin dashboards.", tags: ["Healthcare","Management"], yt: "https://youtu.be/FmbRBXW3XlE", img: "assets/software-cbct-center-v2.webp" },
