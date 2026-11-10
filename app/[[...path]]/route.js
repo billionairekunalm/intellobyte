@@ -20,6 +20,6 @@ export async function GET(req, { params }) {
     const ext = extname(f), buf = await readFile(f);
     const body = TEXT.has(ext) ? buf.toString("utf8").replaceAll("http://localhost:3000", origin) : buf;
     return new Response(body, { headers: { "Content-Type": TYPES[ext] ?? "application/octet-stream",
-      "Cache-Control": ext === ".html" ? "no-cache" : "public, max-age=3600" } });
+      "Cache-Control": [".html", ".mjs", ".js", ".css"].includes(ext) ? "no-cache" : "public, max-age=3600" } });
   } catch { return new Response("not found", { status: 404 }); }
 }
