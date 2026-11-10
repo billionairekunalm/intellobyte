@@ -256,25 +256,37 @@
     card.appendChild(el);
   }
 
+  function dedupePills() { // tablet/mobile variants render some pills twice
+    document.querySelectorAll('[data-framer-name="Key Points"]').forEach((kp) => {
+      const seen = new Set();
+      [...kp.querySelectorAll('[data-framer-name^="key pt"]')].forEach((e) => { const v = e.textContent.trim(); if (!v) return; if (seen.has(v)) e.style.display = "none"; else seen.add(v); });
+    });
+  }
   // Services accordion: animate the real card height (Framer's own layout animation was removed in inject-demos.mjs)
   (function accordion() {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const SEL = '[class*="framer-rmIXD"][data-framer-name]';
     let snap = new Map();
     const take = () => { snap = new Map([...document.querySelectorAll(SEL)].map((c) => [c, c.getBoundingClientRect().height])); };
-    document.addEventListener("pointerdown", (e) => { if (e.target.closest && e.target.closest(SEL)) take(); }, true);
+    const mob = matchMedia("(max-width: 809px)");
+    let anchor = null;
+    document.addEventListener("pointerdown", (e) => { const c = e.target.closest && e.target.closest(SEL); if (c) { take(); anchor = { c, top: c.getBoundingClientRect().top }; } }, true);
+    // phones: keep the tapped card under the finger while the open card above it collapses (no page jump)
+    const hold = (ms) => { if (!mob.matches || !anchor) return; const { c, top } = anchor, t0 = performance.now(); const f = () => { const d = c.getBoundingClientRect().top - top; if (Math.abs(d) > 0.5) scrollBy({ top: d, behavior: "instant" }); if (performance.now() - t0 < ms) requestAnimationFrame(f); }; f(); };
     new MutationObserver((ms) => {
       if (!snap.size) return;
       const ch = new Set(ms.map((m) => m.target).filter((n) => n.matches && n.matches(SEL)));
       if (!ch.size) return;
+      dedupePills(); // before measuring, or the card is measured taller than it ends up and snaps at the end
       const before = snap; snap = new Map();
       ch.forEach((c) => {
         const h0 = before.get(c), h1 = c.getBoundingClientRect().height;
         if (h0 == null || Math.abs(h0 - h1) < 2) return;
         c.classList.add("ibacc");
-        const a = c.animate([{ height: h0 + "px" }, { height: h1 + "px" }], { duration: h1 > h0 ? 780 : 520, easing: "cubic-bezier(.22,1,.36,1)" });
+        const a = c.animate([{ height: h0 + "px" }, { height: h1 + "px" }], { duration: mob.matches ? 480 : h1 > h0 ? 780 : 520, easing: "cubic-bezier(.32,.72,0,1)" });
+        hold(mob.matches ? 520 : 0);
         a.onfinish = a.oncancel = () => c.classList.remove("ibacc");
-        if (h1 > h0) [...c.children].forEach((k) => k.animate([{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], { duration: 560, delay: 170, easing: "cubic-bezier(.22,1,.36,1)", fill: "backwards" }));
+        if (h1 > h0) [...c.children].forEach((k) => k.animate([{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], { duration: mob.matches ? 380 : 560, delay: mob.matches ? 90 : 170, easing: "cubic-bezier(.22,1,.36,1)", fill: "backwards" }));
       });
     }).observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ["data-framer-name"] });
   })();
@@ -283,10 +295,7 @@
     const t = document.querySelector('[data-framer-name="Testimonials"]');
     const f = document.querySelector('[data-framer-name="Featured Works"]');
     if (f) patchFeatured(f);
-    document.querySelectorAll('[data-framer-name="Key Points"]').forEach((kp) => { // tablet/mobile variants render some pills twice
-      const seen = new Set();
-      [...kp.querySelectorAll('[data-framer-name^="key pt"]')].forEach((e) => { const v = e.textContent.trim(); if (!v) return; if (seen.has(v)) e.style.display = "none"; else seen.add(v); });
-    });
+    dedupePills();
     patchQuote();
     if (!t || !f) return;
     if (!t.hasAttribute("data-ib-hidden")) t.setAttribute("data-ib-hidden", ""); // React may re-render the block
