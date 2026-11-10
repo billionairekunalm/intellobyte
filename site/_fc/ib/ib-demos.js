@@ -29,7 +29,7 @@
         { title: "Vishwaharsh Ayurved", desc: "Ayurvedic clinic website in Chinchwad, Pune with online consultation booking.", tags: ["Healthcare", "Ayurveda"], yt: "", url: "https://www.vishwaharshayurved.com", img: "assets/web-vishwaharsh-v3.webp" },
         { title: "DYP Incubation Centre", desc: "Platform for an incubator and education program.", tags: ["Education"], yt: "", img: "assets/work-dyp.webp" },
         { title: "RamaAstra", desc: "Website for an aerospace venture.", tags: ["Aerospace"], yt: "", url: "https://www.ramaastra.com", img: "assets/web-ramaastra-v2.webp" },
-        { title: "Chhaya Dental Care", desc: "Healthcare website for a dental clinic.", tags: ["Healthcare"], yt: "" },
+        { title: "Imaging Dental Solutions", desc: "Website for a diagnostic imaging network offering CBCT and OPG scans across Pune.", tags: ["Healthcare","Dental"], yt: "", url: "https://imagingdentalsolutions.com", img: "assets/web-imagingdental.webp" },
         { title: "Elviko AI", desc: "Website for an AI company.", tags: ["AI"], yt: "" },
       ],
     },
