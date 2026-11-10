@@ -338,6 +338,28 @@
     });
   }
 
+
+  // "Awards" strip: placeholder logos/awards -> real client work (rows link to the live sites)
+  const WORK = [
+    ["o-ramaastra", "Aerospace Venture Website", "RamaAstra (Aerospace)", "https://www.ramaastra.com"],
+    ["o-dyp", "Incubation & Education Platform", "DYP Incubation (Education)", "https://www.dypdsif.org"],
+    ["w-heimstadt", "Premium Housing Platform", "Heimstadt (Real Estate)", "https://www.heimstadt.com"],
+    ["o-gdm", "Construction & Roofing Website", "GDM Construction (S. Africa)", "https://www.gdmconstruction.co.za"],
+  ];
+  function patchWork() {
+    document.querySelectorAll('[data-framer-name="Awards"]').forEach((sec) => {
+      const rows = [...sec.querySelectorAll("a[href*='awwwards']")];
+      rows.forEach((a, i) => {
+        const w = WORK[i % WORK.length], ps = a.querySelectorAll("p.framer-text"), im = a.querySelector("img");
+        if (!im || ps.length < 3) return;
+        ps[0].textContent = w[1]; ps[1].textContent = w[2];
+        im.removeAttribute("srcset"); im.src = `${BASE}assets/logo-${w[0]}.webp`;
+        im.style.cssText = "height:56px;width:190px;object-fit:contain;object-position:left center;margin:-13px 0;filter:none;opacity:1";
+        a.href = w[3]; a.target = "_blank"; a.rel = "noopener";
+      });
+    });
+  }
+
   function mount() {
     const t = document.querySelector('[data-framer-name="Testimonials"]');
     const f = document.querySelector('[data-framer-name="Featured Works"]');
@@ -346,6 +368,7 @@
     patchQuote();
     patchSocials();
     patchLogos();
+    patchWork();
     if (!t || !f) return;
     if (!t.hasAttribute("data-ib-hidden")) t.setAttribute("data-ib-hidden", ""); // React may re-render the block
     if (document.getElementById("ib-demos")) return;
