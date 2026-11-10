@@ -45,7 +45,7 @@ console.log("demo section installed in", n, "pages");
   async function* all(d) { for (const e of await readdir(d, { withFileTypes: true })) { const q = join(d, e.name); if (e.isDirectory()) yield* all(q); else if (/\.(html|mjs)$/.test(e.name)) yield q; } }
   for await (const f of all("site")) {
     let t = await readFile(f, "utf8"), o = t;
-    old.forEach((id, i) => { t = t.split(`/_fc/images/${id}.svg`).join(`/_fc/ib/svc/svc-${i + 1}.webp`); });
+    old.forEach((id, i) => { t = t.split(`/_fc/images/${id}.svg`).join(`/_fc/ib/svc/svc-${i + 1}${i === 2 ? "b" : ""}.webp`); });
     if (t !== o) { await writeFile(f, t); console.log("services images swapped in", f); }
   }
 }
