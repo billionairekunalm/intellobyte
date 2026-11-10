@@ -226,9 +226,27 @@
   }
 
   // ---- mount: insert after the template Testimonials block, survive Framer client navigation --
+  // Featured project: show CBCT Center Software (template CMS card is patched in place; survives re-renders)
+  const FEAT = { img: "/_fc/ib/assets/software-cbct-center.webp", yt: "FmbRBXW3XlE",
+    text: { "DYP Incubation Centre": "CBCT Center Software", "A platform built for an incubator and education program.": "Run every imaging center from one screen: dentist app, technician, radiologist and admin dashboards.", "Website, UI/UX, Development": "Software, Dashboards, Mobile App", "Education": "Healthcare" } };
+  function patchFeatured(f) {
+    const a = f.querySelector("a.framer-13tcklb");
+    if (!a) return;
+    a.setAttribute("data-ib-feat", "");
+    const w = document.createTreeWalker(a, NodeFilter.SHOW_TEXT);
+    for (let n; (n = w.nextNode());) { const v = FEAT.text[n.nodeValue.trim()]; if (v) n.nodeValue = v; }
+    a.querySelectorAll("img").forEach((i) => { if (/0VrElWZWccBOKLdWFuKOXTqIki0/.test(i.src) && !i.src.includes("/ib/")) { i.removeAttribute("srcset"); i.src = FEAT.img; } });
+  }
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest && e.target.closest("a[data-ib-feat]");
+    if (!a) return;
+    e.preventDefault(); e.stopPropagation();
+    openVideo(FEAT.yt, a, false);
+  }, true);
   function mount() {
     const t = document.querySelector('[data-framer-name="Testimonials"]');
     const f = document.querySelector('[data-framer-name="Featured Works"]');
+    if (f) patchFeatured(f);
     if (!t || !f) return;
     if (!t.hasAttribute("data-ib-hidden")) t.setAttribute("data-ib-hidden", ""); // React may re-render the block
     if (document.getElementById("ib-demos")) return;
