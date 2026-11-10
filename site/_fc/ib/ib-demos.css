@@ -67,7 +67,7 @@
 .ibd-static .ibd-track{width:auto;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 clamp(18px,3.4vw,40px) 10px;transform:none!important}
 .ibd-static .ibd-card{scroll-snap-align:start;transform:none!important}.ibd-static .ibd-foot{display:none}.ibd-static .ibd-glow{--p:.5}
 .ibd-static .ibd-btn:not([aria-disabled="true"]) .ibd-play::before,.ibd-hint::after{animation:none}
-@media(max-width:700px){.ibd-tabs{width:100%;justify-content:space-between}.ibd-tabs button{padding:8px 10px;font-size:13px;flex:1;justify-content:center}.ibd-big{display:none}.ibd-pin{border-radius:26px;margin:0 8px}.ibd-chead p{display:none}.ibd-num{font-size:40px}}
+@media(max-width:700px){.ibd-tabs{width:100%;justify-content:space-between;flex-wrap:wrap;border-radius:22px}.ibd-tabs button b{display:none}.ibd-tabs button{padding:8px 10px;font-size:13px;flex:1;justify-content:center}.ibd-big{display:none}.ibd-pin{border-radius:26px;margin:0 8px}.ibd-chead p{display:none}.ibd-num{font-size:40px}}
 /* keep only one featured project */
 [data-framer-name="Featured Works"] a.framer-13tcklb~a.framer-13tcklb{display:none!important}
 .ibd-frame.short{aspect-ratio:9/16;width:auto;height:min(88vh,100%);max-width:100%;margin:0 auto}

@@ -31,8 +31,15 @@
         { title: "RamaAstra", desc: "Website for an aerospace venture.", tags: ["Aerospace"], yt: "", url: "https://www.ramaastra.com", img: "assets/web-ramaastra-v2.webp" },
         { title: "Imaging Dental Solutions", desc: "Website for a diagnostic imaging network offering CBCT and OPG scans across Pune.", tags: ["Healthcare","Dental"], yt: "", url: "https://imagingdentalsolutions.com", img: "assets/web-imagingdental.webp" },
         { title: "Chhaya Clinic & Dental Care", desc: "Website for a dental clinic in Katraj, Pune with online appointment booking.", tags: ["Healthcare","Dental"], yt: "", url: "https://www.chhayaclinicanddentalcare.com", img: "assets/web-chhaya.webp" },
-        { title: "Heimstadt", desc: "Premium housing platform to search rentals by city and move-in dates, with wishlist and landlord listings.", tags: ["Real Estate","Platform"], yt: "", url: "https://www.heimstadt.com", img: "assets/web-heimstadt.webp" },
         { title: "Elviko AI", desc: "Website for an AI company.", tags: ["AI"], yt: "" },
+      ],
+    },
+    {
+      key: "international", label: "International Projects", blurb: "Products we built for clients and users outside India.",
+      items: [
+        { title: "Heimstadt", desc: "Premium housing platform to search rentals by city and move-in dates, with wishlist and landlord listings.", tags: ["Real Estate","Platform"], yt: "", url: "https://www.heimstadt.com", img: "assets/web-heimstadt.webp" },
+        { title: "International Project 02", desc: "Global client product.", tags: ["Global"], yt: "" },
+        { title: "International Project 03", desc: "Cross-border platform demo.", tags: ["Global"], yt: "" },
       ],
     },
   ];
