@@ -10,7 +10,7 @@
         { title: "Live Trading Competition Platform", desc: "100+ traders, real-time leaderboard and live trading.", tags: ["Real-Time", "FinTech"], yt: "https://youtu.be/CrX_5GviXnE" }, // PASTE YOUTUBE LINK in yt
         { title: "Investmore", desc: "Stock market class management platform.", tags: ["EdTech", "Management"], yt: "https://youtu.be/LGE78i4-H9g" },
         { title: "CBCTOne", desc: "DICOM file sharing and viewer platform for dental and medical imaging.", tags: ["Healthcare", "DICOM"], yt: "https://youtu.be/S1Dv728jDqg", img: "assets/software-cbctone.webp" },
-        { title: "CBCT Center Software", desc: "Run every imaging center from one screen: dentist app, technician, radiologist and admin dashboards.", tags: ["Healthcare","Management"], yt: "https://youtu.be/FmbRBXW3XlE", img: "assets/software-cbct-center.webp" },
+        { title: "CBCT Center Software", desc: "Run every imaging center from one screen: dentist app, technician, radiologist and admin dashboards.", tags: ["Healthcare","Management"], yt: "https://youtu.be/FmbRBXW3XlE", img: "assets/software-cbct-center-v2.webp" },
       ],
     },
     {
@@ -227,7 +227,7 @@
 
   // ---- mount: insert after the template Testimonials block, survive Framer client navigation --
   // Featured project: show CBCT Center Software (template CMS card is patched in place; survives re-renders)
-  const FEAT = { img: "/_fc/ib/assets/software-cbct-center.webp", yt: "FmbRBXW3XlE",
+  const FEAT = { img: "/_fc/ib/assets/software-cbct-center-v2.webp", yt: "FmbRBXW3XlE",
     text: { "DYP Incubation Centre": "CBCT Center Software", "A platform built for an incubator and education program.": "Run every imaging center from one screen: dentist app, technician, radiologist and admin dashboards.", "Website, UI/UX, Development": "Software, Dashboards, Mobile App", "Education": "Healthcare" } };
   function patchFeatured(f) {
     const a = f.querySelector("a.framer-13tcklb");
