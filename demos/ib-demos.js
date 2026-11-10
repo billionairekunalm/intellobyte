@@ -292,12 +292,44 @@
     }).observe(document.documentElement, { attributes: true, subtree: true, attributeFilter: ["data-framer-name"] });
   })();
 
+
+  // Team-card socials: Framer's icons are plain divs with no links, so wire them up here
+  const SOC = {
+    "Kunal Manjare": ["https://x.com/kunalair2", "https://www.linkedin.com/in/billionaire-kunal-manjare/", "https://www.instagram.com/billionairekunalmanjare/"],
+    "Pranav Patil": ["https://x.com/everydaypranav", "https://www.linkedin.com/in/thecuriouspranav/", "https://www.instagram.com/thecuriouspranav/"],
+    "Shinjini Mondal": ["https://www.linkedin.com/in/shinjini-mondal-3a2a89281/"],
+  };
+  const IG = '<g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></g>';
+  function patchSocials() {
+    document.querySelectorAll("*").forEach((n) => {
+      const name = n.children.length === 0 && SOC[n.textContent.trim()];
+      if (!name || n.closest(".ibf") || n.hasAttribute("data-ib-soc") || !n.getBoundingClientRect().width) return;
+      let a = n, icons = [];
+      for (let i = 0; i < 12 && a && !icons.length; i++) { a = a.parentElement; icons = a ? [...a.querySelectorAll('[data-framer-name="Icon Large"]')] : []; if (icons.length > 3) return; }
+      if (!icons.length) return;
+      n.setAttribute("data-ib-soc", "");
+      const urls = name, label = ["X", "LinkedIn", "Instagram"];
+      icons.forEach((ic, i) => {
+        const hit = ic.closest('[class*="-container"]') || ic;
+        const u = urls[urls.length === 1 ? 0 : i];
+        if (i >= urls.length && urls.length === 1) { hit.style.display = "none"; return; }
+        if (!u) return;
+        if (urls.length === 3 && i === 2) { const sv = ic.querySelector("svg"); if (sv) sv.innerHTML = IG; }
+        hit.style.cursor = "pointer"; hit.setAttribute("role", "link"); hit.tabIndex = 0;
+        hit.setAttribute("aria-label", (urls.length === 1 ? "LinkedIn" : label[i]));
+        hit.onclick = () => window.open(u, "_blank", "noopener");
+        hit.onkeydown = (e) => { if (e.key === "Enter") hit.onclick(); };
+      });
+    });
+  }
+
   function mount() {
     const t = document.querySelector('[data-framer-name="Testimonials"]');
     const f = document.querySelector('[data-framer-name="Featured Works"]');
     if (f) patchFeatured(f);
     dedupePills();
     patchQuote();
+    patchSocials();
     if (!t || !f) return;
     if (!t.hasAttribute("data-ib-hidden")) t.setAttribute("data-ib-hidden", ""); // React may re-render the block
     if (document.getElementById("ib-demos")) return;
