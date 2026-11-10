@@ -30,7 +30,7 @@ console.log("demo section installed in", n, "pages");
 
 // Leftover template service titles in variant overrides -> real ones. Idempotent.
 {
-  const fix = [["AI UX & Product Design", "AI & Automation"], ["AI UX &amp; Product Design", "AI &amp; Automation"], ["`Data Engineering `", "`Web Dev & Business Systems`"]];
+  const fix = [["AI UX & Product Design", "AI & Automation"], ["AI UX &amp; Product Design", "AI &amp; Automation"], ["UI/UX &amp; Mobile Apps", "iOS &amp; Android Apps"], ["UI/UX & Mobile Apps", "iOS & Android Apps"], ["`Data Engineering `", "`Web Dev & Business Systems`"]];
   async function* all(d) { for (const e of await readdir(d, { withFileTypes: true })) { const q = join(d, e.name); if (e.isDirectory()) yield* all(q); else if (/\.(html|mjs)$/.test(e.name)) yield q; } }
   for await (const f of all("site")) {
     let t = await readFile(f, "utf8"), o = t;
