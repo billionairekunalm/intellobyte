@@ -370,7 +370,7 @@
       const el = document.createElement("div");
       el.className = "ibt";
       if (t) el.style.color = getComputedStyle(t).color;
-      el.innerHTML = `<div class="ibt-row">${[1, 2, 3, 4].map((i) => `<img style="--i:${i - 1}" src="${BASE}assets/team-more-${i}.webp" alt="Intellobyte team member" width="64" height="64">`).join("")}<span class="ibt-n" style="--i:4" aria-label="12 plus"><b>12</b><i>+</i></span></div><p>12+ people team</p>`;
+      el.innerHTML = `<div class="ibt-row">${[1, 2, 3, 4].map((i) => `<img style="--i:${i - 1}" src="${BASE}assets/team-v2-${i}.webp" alt="Intellobyte team member" width="64" height="64">`).join("")}<span class="ibt-n" style="--i:4" aria-label="12 plus"><b>12</b><i>+</i></span></div><p>12+ people team</p>`;
       c.insertAdjacentElement("afterend", el);
       // on scroll-in: circles slide out from the first one, left to right, then the 12+ counts up
       const b = el.querySelector(".ibt-n b");
