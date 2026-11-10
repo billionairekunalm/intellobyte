@@ -18,8 +18,6 @@
       items: [
         { title: "Hello Sakhee", desc: "The app every woman needs: wellness, health, mindfulness and learning.", tags: ["Mobile App", "Women's Wellness"], yt: "https://youtube.com/shorts/RU4QYq7uXDQ", img: "assets/work-sakhee.webp" },
         { title: "Everlush", desc: "Poultry trading app: book live birds and eggs from farms at today's rate.", tags: ["Mobile App", "Marketplace"], yt: "https://youtu.be/Xe-s9ysFaYo" },
-        { title: "App Demo 02", desc: "UI/UX and prototype tour.", tags: ["UI/UX"], yt: "" },
-        { title: "App Demo 03", desc: "Cross-platform app demo.", tags: ["iOS & Android"], yt: "" },
       ],
     },
     {
@@ -38,7 +36,6 @@
       items: [
         { title: "Heimstadt", desc: "Germany: premium housing platform to search rentals by city and move-in dates, with wishlist and landlord listings.", tags: ["Germany","Real Estate"], yt: "", url: "https://www.heimstadt.com", img: "assets/web-heimstadt.webp" },
         { title: "GDM Construction & Roofing", desc: "South Africa: website for a Johannesburg construction, renovation and roofing company with quote and WhatsApp enquiries.", tags: ["South Africa","Construction"], yt: "", url: "https://www.gdmconstruction.co.za", img: "assets/web-gdm.webp" },
-        { title: "International Project 03", desc: "Cross-border platform demo.", tags: ["Global"], yt: "" },
       ],
     },
   ];
@@ -88,12 +85,12 @@
   function build() {
     const s = document.createElement("section");
     s.id = "ib-demos";
-    s.setAttribute("aria-label", "Product demos: software, apps and websites");
+    s.setAttribute("aria-label", "Portfolio: software, apps and websites");
     s.innerHTML = `
       <div class="ibd-pin">
         <div class="ibd-glow" aria-hidden="true"></div><div class="ibd-grid" aria-hidden="true"></div>
         <div class="ibd-top">
-          <div><span class="ibd-pill"><i></i>Product Demos</span><h2 class="ibd-h">See what we build</h2></div>
+          <div><span class="ibd-pill"><i></i>Portfolio</span><h2 class="ibd-h">See what we build</h2></div>
           <nav class="ibd-tabs" aria-label="Demo categories">${CHAPTERS.map((c, i) => `<button type="button" data-i="${i}"><b>0${i + 1}</b>${c.label}</button>`).join("")}</nav>
         </div>
         <div class="ibd-stage">
