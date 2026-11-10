@@ -285,6 +285,7 @@
         c.classList.add("ibacc");
         const a = c.animate([{ height: h0 + "px" }, { height: h1 + "px" }], { duration: mob.matches ? 480 : h1 > h0 ? 780 : 520, easing: "cubic-bezier(.32,.72,0,1)" });
         hold(mob.matches ? 520 : 0);
+        if (mob.matches) { document.documentElement.classList.add("ib-anim"); clearTimeout(window.__iba); window.__iba = setTimeout(() => document.documentElement.classList.remove("ib-anim"), 560); }
         a.onfinish = a.oncancel = () => c.classList.remove("ibacc");
         if (h1 > h0) [...c.children].forEach((k) => k.animate([{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], { duration: mob.matches ? 380 : 560, delay: mob.matches ? 90 : 170, easing: "cubic-bezier(.22,1,.36,1)", fill: "backwards" }));
       });
