@@ -151,3 +151,11 @@ html.ib-anim *{backdrop-filter:none!important;-webkit-backdrop-filter:none!impor
 .ibl li{flex:none;display:flex;align-items:center;height:56px}.ibl img{width:auto;display:block;opacity:.9}
 @keyframes iblmove{to{transform:translateX(-50%)}}
 @media(prefers-reduced-motion:reduce){.ibl ul{animation:none}}
+
+/* Team: wider-team photo strip */
+.ibt{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:-28px;width:100%}
+.ibt-row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.ibt-row img,.ibt-n{width:64px;height:64px;border-radius:16px;object-fit:cover;border:1px solid rgba(128,128,128,.35);box-shadow:0 6px 16px rgba(0,0,0,.18);transition:transform .35s cubic-bezier(.22,1,.36,1)}
+.ibt-row img{background:#111}.ibt-row img:hover,.ibt-n:hover{transform:translateY(-4px)}
+.ibt-n{display:grid;place-items:center;color:#fff;font:700 18px Urbanist,sans-serif;background:linear-gradient(135deg,#6d4aff,#2f6bff);border-color:transparent}
+.ibt p{margin:0;font:500 14px Urbanist,sans-serif;letter-spacing:.02em;opacity:.7}

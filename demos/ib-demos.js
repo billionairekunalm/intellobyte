@@ -360,6 +360,21 @@
     });
   }
 
+
+  // Team: small rounded-square photos of the wider team under the leadership cards
+  function patchTeam() {
+    document.querySelectorAll('[data-framer-name="Cards Container"]').forEach((c) => {
+      const n = c.nextElementSibling;
+      if (n && n.classList.contains("ibt")) return;
+      const t = c.querySelector("p.framer-text");
+      const el = document.createElement("div");
+      el.className = "ibt";
+      if (t) el.style.color = getComputedStyle(t).color;
+      el.innerHTML = `<div class="ibt-row">${[1, 2, 3, 4].map((i) => `<img src="${BASE}assets/team-more-${i}.webp" alt="Intellobyte team member" width="64" height="64">`).join("")}<span class="ibt-n">12+</span></div><p>12+ people team</p>`;
+      c.insertAdjacentElement("afterend", el);
+    });
+  }
+
   function mount() {
     const t = document.querySelector('[data-framer-name="Testimonials"]');
     const f = document.querySelector('[data-framer-name="Featured Works"]');
@@ -369,6 +384,7 @@
     patchSocials();
     patchLogos();
     patchWork();
+    patchTeam();
     if (!t || !f) return;
     if (!t.hasAttribute("data-ib-hidden")) t.setAttribute("data-ib-hidden", ""); // React may re-render the block
     if (document.getElementById("ib-demos")) return;
