@@ -38,7 +38,7 @@
       key: "international", label: "International Projects", blurb: "Products we built for clients and users outside India.",
       items: [
         { title: "Heimstadt", desc: "Germany: premium housing platform to search rentals by city and move-in dates, with wishlist and landlord listings.", tags: ["Germany","Real Estate"], yt: "", url: "https://www.heimstadt.com", img: "assets/web-heimstadt.webp" },
-        { title: "International Project 02", desc: "Global client product.", tags: ["Global"], yt: "" },
+        { title: "GDM Construction & Roofing", desc: "South Africa: website for a Johannesburg construction, renovation and roofing company with quote and WhatsApp enquiries.", tags: ["South Africa","Construction"], yt: "", url: "https://www.gdmconstruction.co.za", img: "assets/web-gdm.webp" },
         { title: "International Project 03", desc: "Cross-border platform demo.", tags: ["Global"], yt: "" },
       ],
     },
