@@ -240,26 +240,22 @@
     e.preventDefault(); e.stopPropagation();
     openVideo(FEAT.yt, a, false);
   }, true);
-  // Quote card: both founders in the one template card (Kunal + Pranav photos side by side, two name lines)
-  const QUOTE = { img: "/_fc/ib/assets/pranav-quote.webp", name: "Pranav Patil", role: "Founder & CTO", kRole: "Founder & CEO" };
+  // Founders card: replaces the template quote with a "Founders" label and both photos, each with its name beside it
+  const FOUNDERS = [{ name: "Kunal Manjare", role: "CEO", img: null }, { name: "Pranav Patil", role: "CTO", img: "/_fc/ib/assets/pranav-founder.webp" }];
   function patchQuote() {
     const k = [...document.querySelectorAll("p")].find((p) => p.textContent.trim() === "Kunal Manjare");
     const card = k && k.closest('[data-framer-name="TrustMetrics Block"]');
     if (!card || card.hasAttribute("data-ib-quote")) return;
-    const photo = card.querySelector(".framer-1rvd1ad"), intro = k.closest('[data-framer-name="Introduction"]'), text = intro && intro.parentElement;
-    if (!photo || !intro || !text) return;
-    card.setAttribute("data-ib-quote", "");
-    const p2 = photo.cloneNode(true);
-    p2.querySelectorAll("img").forEach((i) => { i.removeAttribute("srcset"); i.removeAttribute("sizes"); i.src = QUOTE.img; });
-    p2.classList.add("ibq-p2");
-    photo.style.position = "relative"; photo.style.zIndex = "1";
-    photo.insertAdjacentElement("afterend", p2);
-    text.style.flex = "1 1 0"; text.style.minWidth = "0"; text.style.width = "auto";
-    const i2 = intro.cloneNode(true);
-    [...i2.querySelectorAll("p")].forEach((p) => { const v = p.textContent.trim(); if (v === "Kunal Manjare") p.textContent = QUOTE.name; else if (v === "CEO") p.textContent = QUOTE.role; });
-    [...intro.querySelectorAll("p")].forEach((p) => { if (p.textContent.trim() === "CEO") p.textContent = QUOTE.kRole; });
-    intro.insertAdjacentElement("afterend", i2);
+    const im = card.querySelector(".framer-1rvd1ad img");
+    if (!im) return;
+    FOUNDERS[0].img = im.currentSrc || im.src;
+    card.setAttribute("data-ib-quote", ""); card.classList.add("ibf-host");
+    const el = document.createElement("div");
+    el.className = "ibf";
+    el.innerHTML = `<span class="ibf-tag">Founders</span><div class="ibf-row">${FOUNDERS.map((f) => `<figure class="ibf-p"><img src="${f.img}" alt="${f.name}" loading="lazy"><figcaption><b>${f.name}</b><small>${f.role}</small></figcaption></figure>`).join("")}</div>`;
+    card.appendChild(el);
   }
+
   // Services accordion: animate the real card height (Framer's own layout animation was removed in inject-demos.mjs)
   (function accordion() {
     if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
