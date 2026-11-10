@@ -37,7 +37,7 @@
     {
       key: "international", label: "International Projects", blurb: "Products we built for clients and users outside India.",
       items: [
-        { title: "Heimstadt", desc: "Premium housing platform to search rentals by city and move-in dates, with wishlist and landlord listings.", tags: ["Real Estate","Platform"], yt: "", url: "https://www.heimstadt.com", img: "assets/web-heimstadt.webp" },
+        { title: "Heimstadt", desc: "Germany: premium housing platform to search rentals by city and move-in dates, with wishlist and landlord listings.", tags: ["Germany","Real Estate"], yt: "", url: "https://www.heimstadt.com", img: "assets/web-heimstadt.webp" },
         { title: "International Project 02", desc: "Global client product.", tags: ["Global"], yt: "" },
         { title: "International Project 03", desc: "Cross-border platform demo.", tags: ["Global"], yt: "" },
       ],
