@@ -122,3 +122,5 @@
 
 .ibq-p2{margin-left:-44px;position:relative;z-index:0}
 @media(max-width:809px){.ibq-p2{margin-left:0}}
+
+.ibacc{overflow:clip;overflow-clip-margin:16px}

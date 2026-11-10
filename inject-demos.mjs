@@ -49,3 +49,24 @@ console.log("demo section installed in", n, "pages");
     if (t !== o) { await writeFile(f, t); console.log("services images swapped in", f); }
   }
 }
+
+// Services accordion: drop Framer's layout projection (layoutId literals / layoutDependency:B) from the open/close card component.
+// It faked the height change with scale transforms that squashed the text; ib-demos.js animates real height instead. Idempotent.
+{
+  const dir = "site/_fc/sites/2cxUvBJ9WdQpnSb5BsB7VL";
+  const p = join(dir, (await readdir(dir)).find((n) => /^wKdCdYdBgWSD0ogMJUdHCpg5x9_02irOBfc0F__PCCU\..*\.mjs$/.test(n)));
+  const t = await readFile(p, "utf8");
+  const a = t.indexOf('Wi={"Mobile Closed"'), b = t.indexOf("displayName", a);
+  if (a > 0 && b > a) {
+    const seg = t.slice(a, b);
+    const out = seg.replace(/layoutId:`[^`]*`,/g, "").replace(/layoutDependency:B,/g, "");
+    if (out !== seg) { await writeFile(p, t.slice(0, a) + out + t.slice(b)); console.log("services accordion: layout projection removed"); }
+  }
+}
+// Same for the service key-point pills component (its own layout projection squashed the pill text).
+{
+  const p = "site/_fc/sites/2cxUvBJ9WdQpnSb5BsB7VL/Z8MROexOS.DEdA3vUx.mjs";
+  const t = await readFile(p, "utf8");
+  const out = t.replace(/layoutId:`[^`]*`,/g, "").replace(/layoutDependency:[A-Za-z_$],/g, "");
+  if (out !== t) { await writeFile(p, out); console.log("service pills: layout projection removed"); }
+}
