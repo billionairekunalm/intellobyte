@@ -26,7 +26,7 @@
       key: "websites", label: "Websites", blurb: "Fast, modern websites we designed and shipped for clients across industries.",
       items: [
         { title: "Gargee's Dormitory", desc: "AC & Non-AC dormitory in CBD Belapur, Navi Mumbai: 3D hero, WhatsApp booking.", tags: ["Hospitality", "Navi Mumbai"], yt: "", url: "https://www.gargeesdorms.com", img: "assets/web-gargees-v2.webp" },
-        { title: "Vishwaharsh Ayurved", desc: "Ayurvedic clinic website in Chinchwad, Pune with online consultation booking.", tags: ["Healthcare", "Ayurveda"], yt: "", url: "https://www.vishwaharshayurved.com", img: "assets/web-vishwaharsh-v2.webp" },
+        { title: "Vishwaharsh Ayurved", desc: "Ayurvedic clinic website in Chinchwad, Pune with online consultation booking.", tags: ["Healthcare", "Ayurveda"], yt: "", url: "https://www.vishwaharshayurved.com", img: "assets/web-vishwaharsh-v3.webp" },
         { title: "DYP Incubation Centre", desc: "Platform for an incubator and education program.", tags: ["Education"], yt: "", img: "assets/work-dyp.webp" },
         { title: "RamaAstra", desc: "Website for an aerospace venture.", tags: ["Aerospace"], yt: "", img: "assets/work-ramaastra.webp" },
         { title: "Chhaya Dental Care", desc: "Healthcare website for a dental clinic.", tags: ["Healthcare"], yt: "" },
