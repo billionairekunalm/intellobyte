@@ -226,3 +226,21 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
 .framer-1tflpem>[class*="-container"]>div{border-radius:24px 24px 0 0!important}
 /* same side inset as the neighbouring sections so the Portfolio and Process cards line up */
 @media(min-width:810px){#ib-demos .ibd-pin{margin-left:16px;margin-right:16px}}
+
+/* Process section layout polish -------------------------------------------------------------------------------
+   desktop: the step cards were glued to the top edge with 120px of dead space below; give the card real padding,
+   stretch the left column to the cards' height (tag lines up with the card tops, arrows with their bottoms)
+   and fade the half-visible 3rd card instead of chopping it. */
+@media(min-width:1200px){
+  .framer-1tflpem .framer-pcquH{padding:44px 24px 52px 56px!important}
+  .framer-1tflpem .framer-1j11lsl{align-items:stretch!important}
+  .framer-1tflpem .framer-2r928v{height:auto!important;align-self:stretch;justify-content:space-between!important}
+  .framer-1tflpem .framer-1un4fms{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 72px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 72px),transparent)}
+}
+/* tablet: title on the left, arrows on the right of the same row instead of dangling underneath */
+@media(min-width:810px) and (max-width:1199px){
+  .framer-1tflpem .framer-2r928v{flex-direction:row!important;justify-content:space-between!important;align-items:flex-end!important;width:100%;height:auto!important;gap:24px}
+  .framer-1tflpem .framer-m9r3bu{width:auto!important;flex:1 1 auto!important;min-width:0}
+  .framer-1tflpem .framer-5y3nqz{width:auto!important;flex:none!important}
+  .framer-1tflpem .framer-pcquH{padding-top:36px!important}
+}
