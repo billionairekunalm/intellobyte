@@ -439,3 +439,25 @@
   reduce.addEventListener && reduce.addEventListener("change", size);
   mount();
 })();
+
+// Navbar fix: Services opened a separate page, Contact / Start a Project linked to "./" (a reload).
+// Send them to the home-page sections instead.
+(function () {
+  const go = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return false;
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    try { history.replaceState(null, "", "/#" + id); } catch (_) {}
+    return true;
+  };
+  window.addEventListener("click", (e) => {
+    const a = e.target.closest && e.target.closest("a");
+    if (!a) return;
+    const txt = (a.textContent || "").trim().toLowerCase();
+    const h = a.getAttribute("href") || "";
+    let id = "";
+    if (/^(contact|contact us|start a project)$/.test(txt) && /^\.\/?$/.test(h)) id = "contact";
+    else if (txt === "services" && /^\.\/services/.test(h)) id = "services";
+    if (id && go(id)) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); }
+  }, true);
+})();
