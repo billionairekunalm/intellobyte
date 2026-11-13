@@ -399,6 +399,19 @@
   document.addEventListener("webglcontextlost", (e) => { if (e.target.style) e.target.style.visibility = "hidden"; }, true);
   document.addEventListener("webglcontextrestored", (e) => { if (e.target.style) e.target.style.visibility = ""; }, true);
 
+
+  // Process (phones): the cards are a native swipe scroller now, so the arrow buttons scroll it instead of Framer's slider
+  document.addEventListener("click", (e) => {
+    if (!matchMedia("(max-width: 809px)").matches) return;
+    const nav = e.target.closest && e.target.closest(".framer-1tflpem .framer-5y3nqz");
+    if (!nav) return;
+    const btns = [...nav.children], i = btns.findIndex((b) => b.contains(e.target));
+    const sc = document.querySelector(".framer-1tflpem .framer-1un4fms"), card = sc && sc.querySelector(".framer-WK4dm");
+    if (i < 0 || !card) return;
+    e.stopPropagation(); e.preventDefault();
+    sc.scrollBy({ left: (i === 0 ? -1 : 1) * (card.getBoundingClientRect().width + 14), behavior: "smooth" });
+  }, true);
+
   function mount() {
     const t = document.querySelector('[data-framer-name="Testimonials"]');
     const f = document.querySelector('[data-framer-name="Featured Works"]');
