@@ -270,3 +270,13 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
   /* Framer lays each card out at 342px; zoom it to fit the phone instead of fighting its fixed inner sizes */
   .framer-1tflpem .framer-WK4dm{zoom:.9;flex:none!important;scroll-snap-align:start}
 }
+
+/* Footer on phones: the INTELLOBYTE wordmark was wider than the screen (clipped), social tiles uneven, tiny tap targets */
+@media(max-width:809px){
+  [data-framer-name="Phone"] [data-framer-name="Headline"] span[style*="font-size"],[data-framer-name="Phone"] [data-framer-name="Container"]>div:first-child *{font-size:min(70px,13.6vw)!important;white-space:nowrap;max-width:100%}
+  [data-framer-name="Phone"] [data-framer-name="Social Media"]{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;width:100%}
+  [data-framer-name="Phone"] [data-framer-name="Social Media"]>a{width:100%!important;min-width:0}
+  [data-framer-name="Phone"] [data-framer-name="Quick Link"]{gap:10px!important}
+  [data-framer-name="Phone"] [data-framer-name="Quick Link"] a,[data-framer-name="Phone"] [data-framer-name="Back To Top"]{padding:11px 6px!important}
+  [data-framer-name="Phone"]{padding-bottom:max(12px,env(safe-area-inset-bottom))}
+}
