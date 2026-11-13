@@ -211,3 +211,7 @@ html.ib-anim *{backdrop-filter:none!important;-webkit-backdrop-filter:none!impor
 .framer-1dff3zx-container>div:first-child{background:radial-gradient(120% 55% at 15% 8%,#6a46ff 0%,rgba(106,70,255,0) 62%),radial-gradient(90% 45% at 95% 62%,#4326c9 0%,rgba(67,38,201,0) 66%),#0a0618}
 div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 8%,#6a46ff 0%,rgba(106,70,255,0) 62%),radial-gradient(90% 45% at 95% 62%,#4326c9 0%,rgba(67,38,201,0) 66%),#0a0618}
 .framer-16o2f3k img[src*="m80ZhxX0AHAi3ZQzPq6jtq80gTA"]{visibility:hidden}
+
+/* Featured Works: remove the 4 pagination dots under the thumbnail (only one project is shown) */
+[data-framer-name="Featured Works"] [data-framer-name="Switch Circle"]{display:none!important}
+[data-framer-name="Featured Works"] [data-framer-name="Project Meta"]{padding-bottom:20px}
