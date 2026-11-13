@@ -394,6 +394,11 @@
     });
   }
 
+  // A WebGL canvas whose context the phone dropped is painted as an opaque light slab, hiding the CSS fallback
+  // behind it (contact background). Hide lost canvases; show them again if the browser restores the context.
+  document.addEventListener("webglcontextlost", (e) => { if (e.target.style) e.target.style.visibility = "hidden"; }, true);
+  document.addEventListener("webglcontextrestored", (e) => { if (e.target.style) e.target.style.visibility = ""; }, true);
+
   function mount() {
     const t = document.querySelector('[data-framer-name="Testimonials"]');
     const f = document.querySelector('[data-framer-name="Featured Works"]');

@@ -204,3 +204,10 @@ html.ib-anim *{backdrop-filter:none!important;-webkit-backdrop-filter:none!impor
   html.ib-anim [data-framer-name="Services"]~*,html.ib-anim .framer-M3gTz~*,html.ib-anim [class*="framer-rmIXD"]{will-change:opacity}
 }
 @media(max-width:809px){[class*="framer-rmIXD"][data-framer-name]{transition:transform .18s cubic-bezier(.22,1,.36,1)}[class*="framer-rmIXD"][data-framer-name]:active{transform:scale(.985)}}
+
+/* Contact background is a WebGL shader. If the phone drops the GL context (memory pressure) the canvas goes blank and the
+   light template image underneath showed through, making the white text unreadable. Paint a dark violet fallback in the
+   shader's own wrapper: the opaque canvas still covers it when WebGL works. */
+.framer-1dff3zx-container>div:first-child{background:radial-gradient(120% 55% at 15% 8%,#6a46ff 0%,rgba(106,70,255,0) 62%),radial-gradient(90% 45% at 95% 62%,#4326c9 0%,rgba(67,38,201,0) 66%),#0a0618}
+div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 8%,#6a46ff 0%,rgba(106,70,255,0) 62%),radial-gradient(90% 45% at 95% 62%,#4326c9 0%,rgba(67,38,201,0) 66%),#0a0618}
+.framer-16o2f3k img[src*="m80ZhxX0AHAi3ZQzPq6jtq80gTA"]{visibility:hidden}

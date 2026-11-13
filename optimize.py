@@ -9,6 +9,9 @@ def enc(im, fmt):
     else: im.save(b, "WEBP", quality=80, method=6)
     return b.getvalue()
 def shrink(im, cap):
+    # palette / grey / 16-bit sources must be converted first, or WebP/JPEG encoding scrambles their colours
+    if im.mode == "P": im = im.convert("RGBA")
+    elif im.mode not in ("RGB", "RGBA"): im = im.convert("RGBA" if "A" in im.mode else "RGB")
     if max(im.size) > cap: im.thumbnail((cap, cap), Image.LANCZOS)
     return im
 saved = 0
