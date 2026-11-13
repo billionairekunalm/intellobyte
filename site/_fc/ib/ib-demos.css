@@ -274,3 +274,9 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
 [data-framer-name="Statistics"]>[data-framer-name="Container"]{border-radius:40px!important;overflow:clip!important}
 [data-framer-name="Statistics"] [data-framer-name="Divider"]{opacity:0!important} /* keep its space; the hairline would poke out of the curved corners */
 @media(max-width:809px){[data-framer-name="Statistics"]>[data-framer-name="Container"]{border-radius:28px!important}}
+
+/* "View More of Our Work" (Awards): same rounded-card treatment as Statistics, with a gap above */
+[data-framer-name="Awards"]{margin-top:clamp(24px,4vw,56px)}
+[data-framer-name="Awards"]>[data-framer-name="Container"]{border-radius:40px!important;overflow:clip!important}
+[data-framer-name="Awards"] [data-framer-name="Divider"]{opacity:0!important}
+@media(max-width:809px){[data-framer-name="Awards"]>[data-framer-name="Container"]{border-radius:28px!important}}
