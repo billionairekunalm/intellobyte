@@ -297,12 +297,16 @@
 
 
   // Team-card socials: Framer's icons are plain divs with no links, so wire them up here
+  // per icon slot: [url, label, glyph to draw instead of the template's GitHub icon (optional)]
   const SOC = {
-    "Kunal Manjare": ["https://x.com/kunalair2", "https://www.linkedin.com/in/billionaire-kunal-manjare/", "https://www.instagram.com/billionairekunalmanjare/"],
-    "Pranav Patil": ["https://x.com/everydaypranav", "https://www.linkedin.com/in/thecuriouspranav/", "https://www.instagram.com/thecuriouspranav/"],
-    "Shinjini Mondal": ["https://www.linkedin.com/in/shinjini-mondal-3a2a89281/"],
+    "Kunal Manjare": [["https://x.com/kunalair2", "X"], ["https://www.linkedin.com/in/billionaire-kunal-manjare/", "LinkedIn"], ["https://www.instagram.com/billionairekunalmanjare/", "Instagram", "ig"]],
+    "Pranav Patil": [["https://x.com/everydaypranav", "X"], ["https://www.linkedin.com/in/thecuriouspranav/", "LinkedIn"], ["https://www.instagram.com/thecuriouspranav/", "Instagram", "ig"]],
+    "Shinjini Mondal": [["https://www.linkedin.com/in/shinjini-mondal-3a2a89281/", "LinkedIn"], ["https://x.com/Shinjini_M12", "X", "x"]],
   };
-  const IG = '<g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></g>';
+  const GLYPH = {
+    ig: '<g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></g>',
+    x: '<path fill="#fff" d="M17.75 3h3.07l-6.7 7.66L22 21h-6.17l-4.83-6.32L5.47 21H2.4l7.17-8.2L2 3h6.33l4.37 5.78L17.75 3Zm-1.08 16.16h1.7L7.4 4.74H5.58l11.09 14.42Z"/>',
+  };
   function patchSocials() {
     document.querySelectorAll("p.framer-text").forEach((n) => {
       const name = n.children.length === 0 && SOC[n.textContent.trim()];
@@ -311,17 +315,13 @@
       for (let i = 0; i < 12 && a && !icons.length; i++) { a = a.parentElement; icons = a ? [...a.querySelectorAll('[data-framer-name="Icon Large"]')] : []; if (icons.length > 3) return; }
       if (!icons.length) return;
       n.setAttribute("data-ib-soc", "");
-      const urls = name, label = ["X", "LinkedIn", "Instagram"];
       icons.forEach((ic, i) => {
-        const hit = ic.closest('[class*="-container"]') || ic;
-        const u = urls[urls.length === 1 ? 0 : i];
-        if (i >= urls.length && urls.length === 1) { hit.style.visibility = "hidden"; hit.style.pointerEvents = "none"; return; } // keep its space: display:none lets the photo grow over the name
-        if (!u) return;
-        if (urls.length === 3 && i === 2) { const sv = ic.querySelector("svg"); if (sv) sv.innerHTML = IG; }
-        hit.style.cursor = "pointer"; hit.setAttribute("role", "link"); hit.tabIndex = 0;
-        hit.setAttribute("aria-label", (urls.length === 1 ? "LinkedIn" : label[i]));
-        hit.onclick = () => window.open(u, "_blank", "noopener");
-        hit.onkeydown = (e) => { if (e.key === "Enter") hit.onclick(); };
+        const hit = ic.closest('[class*="-container"]') || ic, e = name[i];
+        if (!e) { hit.style.visibility = "hidden"; hit.style.pointerEvents = "none"; return; } // keep the slot: display:none lets the photo grow over the name
+        if (e[2]) { const sv = ic.querySelector("svg"); if (sv) sv.innerHTML = GLYPH[e[2]]; }
+        hit.style.cursor = "pointer"; hit.setAttribute("role", "link"); hit.tabIndex = 0; hit.setAttribute("aria-label", e[1]);
+        hit.onclick = () => window.open(e[0], "_blank", "noopener");
+        hit.onkeydown = (ev) => { if (ev.key === "Enter") hit.onclick(); };
       });
     });
   }
