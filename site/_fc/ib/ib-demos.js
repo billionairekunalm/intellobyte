@@ -301,7 +301,7 @@
   };
   const IG = '<g fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.5 6.5h.01"/></g>';
   function patchSocials() {
-    document.querySelectorAll("*").forEach((n) => {
+    document.querySelectorAll("p.framer-text").forEach((n) => {
       const name = n.children.length === 0 && SOC[n.textContent.trim()];
       if (!name || n.closest(".ibf") || n.hasAttribute("data-ib-soc") || !n.getBoundingClientRect().width) return;
       let a = n, icons = [];
@@ -408,8 +408,8 @@
     init(s);
   }
   let mq = 0;
-  new MutationObserver(() => { if (!mq) mq = requestAnimationFrame(() => { mq = 0; mount(); }); }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-framer-name"] });
-  setInterval(mount, 600); // safety net: Framer hydrates after this script runs
+  new MutationObserver(() => { if (!mq) mq = setTimeout(() => { mq = 0; (window.requestIdleCallback || setTimeout)(mount); }, 350); }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["data-framer-name"] });
+  setInterval(mount, 2000); // safety net: Framer hydrates after this script runs
   addEventListener("scroll", tick, { passive: true });
   addEventListener("resize", size);
   addEventListener("load", size);

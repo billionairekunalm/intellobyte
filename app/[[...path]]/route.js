@@ -18,8 +18,13 @@ export async function GET(req, { params }) {
   catch { if (!extname(f)) f = join(ROOT, "index.html"); } // SPA fallback
   try {
     const ext = extname(f), buf = await readFile(f);
+    // optimized PNGs are WebP bytes under the old .png name: serve the real type
+    const type = ext === ".png" && buf.subarray(8, 12).toString() === "WEBP" ? "image/webp" : (TYPES[ext] ?? "application/octet-stream");
     const body = TEXT.has(ext) ? buf.toString("utf8").replaceAll("http://localhost:3000", origin) : buf;
-    return new Response(body, { headers: { "Content-Type": TYPES[ext] ?? "application/octet-stream",
-      "Cache-Control": [".html", ".mjs", ".js", ".css"].includes(ext) ? "no-cache" : "public, max-age=3600" } });
+    return new Response(body, { headers: { "Content-Type": type,
+      // every response is edge-cached for the life of a deployment (a new deploy = a new cache)
+      "Cache-Control": ext === ".html" || !ext ? "public, max-age=0, must-revalidate, s-maxage=31536000"
+        : [".mjs", ".js", ".css", ".json"].includes(ext) ? "public, max-age=300, s-maxage=31536000"
+        : "public, max-age=31536000, immutable, s-maxage=31536000" } }); // images/fonts: files are renamed when they change
   } catch { return new Response("not found", { status: 404 }); }
 }

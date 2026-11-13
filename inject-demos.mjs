@@ -16,6 +16,9 @@ async function* walk(d) {
 for await (const f of walk("site")) {
   let t = await readFile(f, "utf8");
   t = t.replace(/<link[^>]*data-ib>|<script[^>]*data-ib><\/script>/g, "").replace("</head>", tags + "</head>");
+  // below-the-fold images: don't fetch/decode until needed (first 6 stay eager for the hero)
+  let k = 0;
+  t = t.replace(/<img(?![^>]*loading=)/g, (m) => (++k > 6 ? '<img loading="lazy" decoding="async"' : m));
   await writeFile(f, t); n++;
 }
 console.log("demo section installed in", n, "pages");
