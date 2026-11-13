@@ -215,7 +215,10 @@
       const t = e.target.closest(".ibd-tabs button");
       if (t) {
         const i = +t.dataset.i, top = s.getBoundingClientRect().top + scrollY, total = s.offsetHeight - innerHeight;
-        if (s.classList.contains("ibd-static")) s.querySelectorAll(".ibd-ch")[i].scrollIntoView({ behavior: "smooth", block: "start" });
+        if (s.classList.contains("ibd-static")) { // scroll the window only: scrollIntoView also scrolls the clipped .ibd-pin and strands its header
+          const ch = s.querySelectorAll(".ibd-ch")[i]; s.querySelector(".ibd-pin").scrollTop = 0;
+          scrollTo({ top: ch.getBoundingClientRect().top + scrollY - 110, behavior: "smooth" });
+        }
         else scrollTo({ top: top + total * ((i + (i ? 0.16 : 0.04)) / 3), behavior: "smooth" });
       }
     });
