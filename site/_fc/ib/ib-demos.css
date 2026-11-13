@@ -264,3 +264,7 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
   [data-framer-name="Phone"] [data-framer-name="Quick Link"] a,[data-framer-name="Phone"] [data-framer-name="Back To Top"]{padding:11px 6px!important}
   [data-framer-name="Phone"]{padding-bottom:max(12px,env(safe-area-inset-bottom))}
 }
+
+/* Team Members: curved bottom corners too (the template only rounded the top), on every breakpoint */
+[data-framer-name="Team Members"]>[data-framer-name="Container"]{border-radius:40px!important}
+@media(max-width:809px){[data-framer-name="Team Members"]>[data-framer-name="Container"]{border-radius:28px!important}}
