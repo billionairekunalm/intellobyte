@@ -183,3 +183,6 @@ html.ib-anim *{backdrop-filter:none!important;-webkit-backdrop-filter:none!impor
 .ibt-row img{border:2px solid rgba(255,255,255,.2)}
 @media(max-width:480px){.ibt{--sz:52px;--gp:8px}.ibt-n b,.ibt-n i{font-size:18px}}
 @media(prefers-reduced-motion:reduce){.ibt-row img,.ibt-n{transition:none}}
+
+/* Awards rows: let the 56px client logos overflow Framer's 30px logo slot instead of being clipped */
+[data-framer-name="Awards"] .framer-1swkrbi,[data-framer-name="Awards"] .framer-10hh0fh{overflow:visible!important}
