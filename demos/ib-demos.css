@@ -268,3 +268,9 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
 /* Team Members: curved bottom corners too (the template only rounded the top), on every breakpoint */
 [data-framer-name="Team Members"]>[data-framer-name="Container"]{border-radius:40px!important}
 @media(max-width:809px){[data-framer-name="Team Members"]>[data-framer-name="Container"]{border-radius:28px!important}}
+
+/* Statistics: its own rounded card (top + bottom), with a gap above it so it no longer touches Team Members */
+[data-framer-name="Statistics"]{margin-top:clamp(24px,4vw,56px)}
+[data-framer-name="Statistics"]>[data-framer-name="Container"]{border-radius:40px!important;overflow:clip!important}
+[data-framer-name="Statistics"] [data-framer-name="Divider"]{opacity:0!important} /* keep its space; the hairline would poke out of the curved corners */
+@media(max-width:809px){[data-framer-name="Statistics"]>[data-framer-name="Container"]{border-radius:28px!important}}
