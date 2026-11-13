@@ -409,7 +409,8 @@
     const sc = document.querySelector(".framer-1tflpem .framer-1un4fms"), card = sc && sc.querySelector(".framer-WK4dm");
     if (i < 0 || !card) return;
     e.stopPropagation(); e.preventDefault();
-    sc.scrollBy({ left: (i === 0 ? -1 : 1) * (card.getBoundingClientRect().width + 14), behavior: "smooth" });
+    const step = card.getBoundingClientRect().width + 14, at = Math.round(sc.scrollLeft / step); // always land exactly on the neighbouring card
+    sc.scrollTo({ left: Math.max(0, (at + (i === 0 ? -1 : 1))) * step, behavior: "smooth" });
   }, true);
 
   function mount() {

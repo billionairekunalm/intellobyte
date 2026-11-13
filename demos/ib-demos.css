@@ -251,7 +251,7 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
   .framer-1tflpem .framer-1j11lsl{gap:26px!important}
   .framer-1tflpem .framer-1un4fms{overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;width:100%!important;padding:6px 0 30px;margin-bottom:-14px;box-sizing:content-box}
   .framer-1tflpem .framer-1un4fms::-webkit-scrollbar{display:none}
-  .framer-1tflpem .framer-18i0gj2{transform:none!important;translate:none!important;gap:14px!important;padding-right:12px}
+  .framer-1tflpem .framer-18i0gj2{transform:none!important;translate:none!important;left:0!important;gap:14px!important;padding-right:12px} /* left:0 - Framer's own slide (left:-361px / -728px per variant) was stacking on top of the native scroll, so one tap jumped card 1 -> 3 */
   .framer-1tflpem .framer-WK4dm{flex:none!important;scroll-snap-align:start}
 }
 
