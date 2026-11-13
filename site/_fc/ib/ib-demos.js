@@ -126,11 +126,11 @@
 
   // ---- scroll choreography --------------------------------------------------------------
   const E = 0.1; // share of each chapter spent sliding in / out
-  let raf = 0;
+  let raf = 0, ibdVisible = true;
   function update() {
     raf = 0;
     const s = document.getElementById("ib-demos");
-    if (!s) return;
+    if (!s || !ibdVisible) return; // off-screen: skip the layout reads (they were forced on every scroll tick, e.g. while the services accordion scrolls)
     if (s.classList.contains("ibd-static")) { // highlight the tab of the chapter nearest the viewport middle
       let best = 0, bd = 1e9;
       s.querySelectorAll(".ibd-ch").forEach((ch, i) => { const r = ch.getBoundingClientRect(), d = Math.abs(r.top + r.height / 2 - innerHeight / 2); if (d < bd) { bd = d; best = i; } });
@@ -223,6 +223,7 @@
       }
     });
     size();
+    if ("IntersectionObserver" in window) new IntersectionObserver((es) => { ibdVisible = es[0].isIntersecting; if (ibdVisible) tick(); }, { rootMargin: "150px" }).observe(s);
   }
 
   // ---- mount: insert after the template Testimonials block, survive Framer client navigation --

@@ -197,3 +197,10 @@ html.ib-anim *{backdrop-filter:none!important;-webkit-backdrop-filter:none!impor
 }
 @keyframes ibhero{from{opacity:0;transform:translateY(14px);filter:blur(6px)}to{opacity:1;transform:none;filter:none}}
 @media(prefers-reduced-motion:reduce){[data-framer-name="SubText+Bottom"] p.framer-text{animation:none!important}}
+
+/* phones, while a service card opens/closes: give everything below its own compositor layer so the shift is a
+   layer move instead of a repaint of the whole page (will-change:opacity, unlike transform, never traps fixed children) */
+@media(max-width:809px){
+  html.ib-anim [data-framer-name="Services"]~*,html.ib-anim .framer-M3gTz~*,html.ib-anim [class*="framer-rmIXD"]{will-change:opacity}
+}
+@media(max-width:809px){[class*="framer-rmIXD"][data-framer-name]{transition:transform .18s cubic-bezier(.22,1,.36,1)}[class*="framer-rmIXD"][data-framer-name]:active{transform:scale(.985)}}
