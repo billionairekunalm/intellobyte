@@ -315,7 +315,7 @@
       icons.forEach((ic, i) => {
         const hit = ic.closest('[class*="-container"]') || ic;
         const u = urls[urls.length === 1 ? 0 : i];
-        if (i >= urls.length && urls.length === 1) { hit.style.display = "none"; return; }
+        if (i >= urls.length && urls.length === 1) { hit.style.visibility = "hidden"; hit.style.pointerEvents = "none"; return; } // keep its space: display:none lets the photo grow over the name
         if (!u) return;
         if (urls.length === 3 && i === 2) { const sv = ic.querySelector("svg"); if (sv) sv.innerHTML = IG; }
         hit.style.cursor = "pointer"; hit.setAttribute("role", "link"); hit.tabIndex = 0;
