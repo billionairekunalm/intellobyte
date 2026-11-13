@@ -3,7 +3,7 @@ import { join, extname, normalize } from "node:path";
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".mjs": "text/javascript", ".js": "text/javascript", ".css": "text/css",
   ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg",
-  ".webp": "image/webp", ".woff2": "font/woff2", ".mp4": "video/mp4", ".gif": "image/gif" };
+  ".webp": "image/webp", ".woff2": "font/woff2", ".mp4": "video/mp4", ".gif": "image/gif", ".ico": "image/x-icon" };
 const TEXT = new Set([".html", ".mjs", ".js", ".css", ".json"]);
 const ROOT = join(process.cwd(), "site");
 
@@ -24,7 +24,7 @@ export async function GET(req, { params }) {
     return new Response(body, { headers: { "Content-Type": type,
       // every response is edge-cached for the life of a deployment (a new deploy = a new cache)
       "Cache-Control": ext === ".html" || !ext ? "public, max-age=0, must-revalidate, s-maxage=31536000"
-        : [".mjs", ".js", ".css", ".json"].includes(ext) ? "public, max-age=300, s-maxage=31536000"
+        : [".mjs", ".js", ".css", ".json", ".ico"].includes(ext) ? "public, max-age=300, s-maxage=31536000"
         : "public, max-age=31536000, immutable, s-maxage=31536000" } }); // images/fonts: files are renamed when they change
   } catch { return new Response("not found", { status: 404 }); }
 }

@@ -6,6 +6,7 @@ import { join } from "node:path";
 await cp("demos", "site/_fc/ib", { recursive: true });
 const v = Date.now().toString(36);
 const tags = `<link rel="stylesheet" href="/_fc/ib/ib-demos.css?v=${v}" data-ib><script defer src="/_fc/ib/ib-demos.js?v=${v}" data-ib></script>`;
+const icons = `<link rel="icon" href="/favicon.ico" sizes="48x48"><link rel="icon" type="image/png" href="/_fc/ib/icon-48.png" sizes="48x48"><link rel="icon" type="image/png" href="/_fc/ib/icon-192.png" sizes="192x192"><link rel="apple-touch-icon" href="/_fc/ib/apple-touch-icon.png">`;
 let n = 0;
 async function* walk(d) {
   for (const e of await readdir(d, { withFileTypes: true })) {
@@ -16,6 +17,8 @@ async function* walk(d) {
 for await (const f of walk("site")) {
   let t = await readFile(f, "utf8");
   t = t.replace(/<link[^>]*data-ib>|<script[^>]*data-ib><\/script>/g, "").replace("</head>", tags + "</head>");
+  // site icons: replace the template favicon (what Google shows next to the result) with the company logo
+  t = t.replace(/<link[^>]*rel="(?:shortcut )?icon"[^>]*>|<link[^>]*rel="apple-touch-icon"[^>]*>/g, "").replace("</head>", icons + "</head>");
   // below-the-fold images: don't fetch/decode until needed (first 6 stay eager for the hero)
   let k = 0;
   t = t.replace(/<img(?![^>]*loading=)/g, (m) => (++k > 6 ? '<img loading="lazy" decoding="async"' : m));

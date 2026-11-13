@@ -4,7 +4,7 @@ import { join, extname } from "node:path";
 
 const T = { ".html": "text/html", ".mjs": "text/javascript", ".js": "text/javascript", ".css": "text/css",
   ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg",
-  ".webp": "image/webp", ".woff2": "font/woff2", ".mp4": "video/mp4", ".gif": "image/gif" };
+  ".webp": "image/webp", ".woff2": "font/woff2", ".mp4": "video/mp4", ".gif": "image/gif", ".ico": "image/x-icon" };
 
 createServer(async (req, res) => {
   let p = decodeURIComponent(req.url.split("?")[0]);
