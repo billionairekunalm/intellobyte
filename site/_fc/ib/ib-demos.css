@@ -222,4 +222,7 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
 #ib-demos::before{content:"";position:absolute;left:50%;bottom:calc(var(--gap)/-2 - 4px);width:9px;height:9px;transform:translateX(-50%);border-radius:50%;background:#6d4aff;box-shadow:0 0 0 5px rgba(109,74,255,.16),0 0 22px 4px rgba(109,74,255,.5);z-index:1}
 
 /* Process section: curved top corners, like the other stacked sections (the template left them square) */
-.framer-1tflpem [data-framer-name*="Card 1"]{border-radius:24px 24px 0 0!important}
+/* every breakpoint: the card is the first child of the section's container (named "Tablet Card 1", "Process Card 1", "Mobile"...) */
+.framer-1tflpem>[class*="-container"]>div{border-radius:24px 24px 0 0!important}
+/* same side inset as the neighbouring sections so the Portfolio and Process cards line up */
+@media(min-width:810px){#ib-demos .ibd-pin{margin-left:16px;margin-right:16px}}
