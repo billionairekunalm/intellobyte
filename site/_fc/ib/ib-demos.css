@@ -244,3 +244,18 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
   .framer-1tflpem .framer-5y3nqz{width:auto!important;flex:none!important}
   .framer-1tflpem .framer-pcquH{padding-top:36px!important}
 }
+
+/* Process step cards: soft lavender gradient, accent glow, purple numbers + duration pill, hover lift (all breakpoints) */
+.framer-1tflpem .framer-1acyth9{
+  background:radial-gradient(120% 55% at 0% 0%,rgba(109,74,255,.17),rgba(109,74,255,0) 62%),linear-gradient(165deg,#fff 0%,#f6f3ff 58%,#ece6ff 100%)!important;
+  border:1px solid rgba(109,74,255,.16);border-radius:34px!important;
+  box-shadow:inset 0 1px 0 #fff,0 22px 44px -22px rgba(76,45,200,.38),0 2px 6px rgba(76,45,200,.06)!important;
+  translate:0 0;transition:translate .45s cubic-bezier(.22,1,.36,1),box-shadow .45s}
+@media(hover:hover){.framer-1tflpem .framer-1acyth9:hover{translate:0 -6px;box-shadow:inset 0 1px 0 #fff,0 30px 56px -22px rgba(76,45,200,.5),0 2px 6px rgba(76,45,200,.08)!important}}
+.framer-1tflpem .framer-ch3mvj{box-shadow:0 14px 30px -8px rgba(109,74,255,.65),0 0 0 6px rgba(109,74,255,.1)!important}
+.framer-1tflpem .framer-y8t4uh{background-image:linear-gradient(90deg,rgba(109,74,255,.35),rgba(109,74,255,0))!important;background-color:transparent!important}
+.framer-1tflpem .framer-1d28frz p{color:#52525b!important}
+.framer-1tflpem .framer-7yxusp{background:rgba(255,255,255,.75)!important;border:1px solid rgba(109,74,255,.28)!important;box-shadow:0 4px 12px -4px rgba(109,74,255,.3)!important}
+.framer-1tflpem .framer-1gyia4a p{color:#4b2fd6!important;font-weight:600}
+.framer-1tflpem .framer-1ow3153 h2{color:#6d4aff!important}
+.framer-1tflpem .framer-741nfh h2{color:rgba(109,74,255,.22)!important}
