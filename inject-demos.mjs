@@ -19,6 +19,10 @@ for await (const f of walk("site")) {
   t = t.replace(/<link[^>]*data-ib>|<script[^>]*data-ib><\/script>/g, "").replace("</head>", tags + "</head>");
   // site icons: replace the template favicon (what Google shows next to the result) with the company logo
   t = t.replace(/<link[^>]*rel="(?:shortcut )?icon"[^>]*>|<link[^>]*rel="apple-touch-icon"[^>]*>/g, "").replace("</head>", icons + "</head>");
+  // link-preview card (WhatsApp/LinkedIn/X): brand image + real URL instead of the template's
+  t = t.replace(/(<meta (?:property="og:image"|name="twitter:image") content=")[^"]*"/g, `$1http://localhost:3000/_fc/ib/og-image.png?v=${v}"`)
+       .replace(/(<meta property="og:url" content=")[^"]*"/, '$1https://www.intellobyte.in/"');
+  if (!t.includes('og:image:width')) t = t.replace('</head>', '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:site_name" content="Intellobyte"></head>');
   // below-the-fold images: don't fetch/decode until needed (first 6 stay eager for the hero)
   let k = 0;
   t = t.replace(/<img(?![^>]*loading=)/g, (m) => (++k > 6 ? '<img loading="lazy" decoding="async"' : m));
