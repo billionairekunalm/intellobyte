@@ -329,7 +329,7 @@
 
 
   // "Trusted by" strip: replace Framer's placeholder logos with client logos (pre-greyed in assets)
-  const LOGOS = [["imaging", .99], ["investmore", 1.59], ["vishwaharsh", .95], ["everlush", 1.12], ["ramaastra", 1.17], ["dyp", 1], ["heimstadt", 1.5], ["gdm", 1], ["gargees", 2.07]];
+  const LOGOS = [["imaging", .99], ["investmore", 1.59], ["vishwaharsh", .95], ["everlush", 1.12], ["ramaastra", 1.17], ["dyp2", 1], ["heimstadt", 1.5], ["gdm", 1], ["gargees", 2.07]];
   function patchLogos() {
     document.querySelectorAll(".framer-662aja:not([data-ib-logos])").forEach((w) => {
       w.setAttribute("data-ib-logos", "");
