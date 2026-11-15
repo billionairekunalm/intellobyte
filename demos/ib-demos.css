@@ -269,3 +269,8 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
    only the last one gets curved bottom corners to close the stack */
 [data-framer-name="Awards"]>[data-framer-name="Container"]{border-radius:0 0 40px 40px!important}
 @media(max-width:809px){[data-framer-name="Awards"]>[data-framer-name="Container"]{border-radius:0 0 28px 28px!important}}
+
+/* gap between Featured Works and Portfolio (same as Portfolio -> Process), Featured bottom corners rounded to match */
+#ib-demos{margin-top:var(--gap)}
+.framer-rjy3eh{border-radius:0 0 32px 32px!important}
+@media(max-width:700px){.framer-rjy3eh{border-radius:0 0 26px 26px!important}}
