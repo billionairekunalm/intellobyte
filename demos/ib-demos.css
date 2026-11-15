@@ -274,3 +274,14 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
 #ib-demos{margin-top:var(--gap)}
 .framer-rjy3eh{border-radius:0 0 32px 32px!important}
 @media(max-width:700px){.framer-rjy3eh{border-radius:0 0 26px 26px!important}}
+
+/* site-sound toggle (bottom-left): animated equaliser when on, flat bars when muted */
+#ib-snd{position:fixed;left:16px;bottom:16px;z-index:2147483000;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(14,12,24,.72);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;gap:3px;cursor:pointer;padding:0;box-shadow:0 6px 20px rgba(0,0,0,.25);transition:transform .2s,background .2s}
+#ib-snd:hover{transform:scale(1.08);background:rgba(109,74,255,.85)}
+#ib-snd:focus-visible{outline:2px solid #8b6dff;outline-offset:3px}
+#ib-snd span{width:3px;height:14px;border-radius:2px;background:#fff;transform-origin:50% 100%;animation:ib-eq 1s ease-in-out infinite}
+#ib-snd span:nth-child(2){animation-delay:-.3s}#ib-snd span:nth-child(3){animation-delay:-.6s}#ib-snd span:nth-child(4){animation-delay:-.15s}
+#ib-snd.off span{animation:none;transform:scaleY(.25);opacity:.6}
+@keyframes ib-eq{0%,100%{transform:scaleY(.3)}50%{transform:scaleY(1)}}
+@media(prefers-reduced-motion:reduce){#ib-snd span{animation:none}}
+@media(max-width:809px){#ib-snd{left:12px;bottom:12px;width:40px;height:40px}}

@@ -461,3 +461,105 @@
     if (id && go(id)) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); }
   }, true);
 })();
+
+// UI sounds: synthesized with Web Audio (no audio files to download). Browsers only allow sound after the
+// visitor's first tap/click/key, so nothing plays on page load. Floating toggle (bottom-left) mutes; choice is remembered.
+(function () {
+  const KEY = "ib-sound";
+  let on = true;
+  try { on = localStorage.getItem(KEY) !== "off"; } catch (_) {}
+  let ac = null, master = null, noise = null, userScrolled = false, lastWhoosh = 0, lastTick = 0;
+  const fine = matchMedia("(hover:hover) and (pointer:fine)").matches;
+
+  function ctx() {
+    if (!ac) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      ac = new AC();
+      master = ac.createGain(); master.gain.value = 0.9; master.connect(ac.destination);
+      noise = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+      const d = noise.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    }
+    if (ac.state === "suspended") ac.resume();
+    return ac;
+  }
+  const ready = () => on && ac && ac.state === "running";
+
+  function tone(freq, t0, dur, vol, type) {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type || "sine"; o.frequency.value = freq;
+    g.gain.setValueAtTime(0, t0);
+    g.gain.linearRampToValueAtTime(vol, t0 + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    o.connect(g).connect(master); o.start(t0); o.stop(t0 + dur + 0.02);
+  }
+  const S = {
+    tick() { // hover: tiny glassy tick
+      const t = ac.currentTime; tone(2400, t, 0.04, 0.018); },
+    bell() { // click: soft bell (fundamental + inharmonic partials)
+      const t = ac.currentTime;
+      tone(880, t, 0.55, 0.06); tone(880 * 2.76, t, 0.25, 0.018); tone(880 * 5.4, t, 0.12, 0.008); },
+    whoosh(strength) { // section change / tab switch: band-passed noise sweep
+      const t = ac.currentTime, k = strength || 1;
+      const src = ac.createBufferSource(); src.buffer = noise;
+      const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 1.2;
+      bp.frequency.setValueAtTime(300, t); bp.frequency.exponentialRampToValueAtTime(2600, t + 0.22); bp.frequency.exponentialRampToValueAtTime(900, t + 0.45);
+      const g = ac.createGain();
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.11 * k, t + 0.12); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+      src.connect(bp).connect(g).connect(master); src.start(t); src.stop(t + 0.55); },
+    chime() { // sound switched on
+      const t = ac.currentTime; tone(659, t, 0.4, 0.05); tone(988, t + 0.09, 0.5, 0.05); },
+  };
+  const play = (n, a) => { if (ready()) S[n](a); };
+
+  // unlock on the first real interaction
+  const unlock = () => { if (on) ctx(); };
+  addEventListener("pointerdown", unlock, { capture: true, passive: true });
+  addEventListener("keydown", unlock, { capture: true });
+
+  // clicks: whoosh for slide/tab controls, bell for everything else clickable
+  addEventListener("click", (e) => {
+    const el = e.target.closest && e.target.closest("a,button,[role=button],[data-framer-name]");
+    if (!el || e.target.closest("#ib-snd")) return;
+    if (e.target.closest(".ibd-tabs button,.ibd-btn,.framer-5y3nqz,[data-framer-name*='Arrow']")) return play("whoosh", 0.8);
+    if (el.matches("a,button,[role=button]") || el.closest("a,button,[role=button]")) play("bell");
+  }, true);
+
+  // hover ticks (mouse only), once per element entry
+  if (fine) {
+    let cur = null;
+    addEventListener("pointerover", (e) => {
+      const el = e.target.closest && e.target.closest("a,button,[role=button]");
+      if (!el || el === cur) return; cur = el;
+      const now = performance.now(); if (now - lastTick < 70) return; lastTick = now;
+      play("tick");
+    }, { passive: true });
+    addEventListener("pointerout", (e) => { if (cur && !cur.contains(e.relatedTarget)) cur = null; }, { passive: true });
+  }
+
+  // a soft whoosh the first time each main section scrolls into view
+  addEventListener("scroll", () => { userScrolled = true; }, { passive: true, once: true });
+  const seen = new WeakSet();
+  const io = new IntersectionObserver((es) => es.forEach((en) => {
+    if (!en.isIntersecting || seen.has(en.target) || !userScrolled) return;
+    seen.add(en.target);
+    const now = performance.now(); if (now - lastWhoosh < 900) return; lastWhoosh = now;
+    play("whoosh", 0.55);
+  }), { threshold: 0.18 });
+  const watch = () => ["about", "services", "works", "ib-demos", "contact"].forEach((id) => { const el = document.getElementById(id); if (el && !el.dataset.ibSnd) { el.dataset.ibSnd = 1; io.observe(el); } });
+  const p = () => { const el = document.querySelector(".framer-1tflpem"); if (el && !el.dataset.ibSnd) { el.dataset.ibSnd = 1; io.observe(el); } };
+  setInterval(() => { watch(); p(); }, 2000); watch(); p();
+
+  // floating mute toggle
+  const b = document.createElement("button");
+  b.id = "ib-snd"; b.type = "button";
+  b.innerHTML = '<span></span><span></span><span></span><span></span>';
+  const sync = () => { b.classList.toggle("off", !on); b.setAttribute("aria-label", on ? "Mute site sounds" : "Turn on site sounds"); b.title = on ? "Sound on" : "Sound off"; };
+  b.addEventListener("click", () => {
+    on = !on; try { localStorage.setItem(KEY, on ? "on" : "off"); } catch (_) {}
+    sync(); if (on) { ctx(); setTimeout(() => play("chime"), 30); }
+  });
+  sync();
+  const add = () => document.body && !document.getElementById("ib-snd") && document.body.appendChild(b);
+  add(); addEventListener("DOMContentLoaded", add); setInterval(add, 3000);
+})();
