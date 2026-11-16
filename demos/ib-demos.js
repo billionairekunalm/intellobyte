@@ -565,6 +565,7 @@
     const t = e.target; if (!t.closest || t.closest("#ib-snd")) return;
     const pan = panOf(e.clientX || innerWidth / 2);
     if (t.closest(".ibd-tabs button,.ibd-btn,.framer-5y3nqz,[data-framer-name*='Arrow']")) { buzz(8); return play("whoosh", 0.8, pan || 0.6); }
+    if (t.closest(".ibd-ch [data-d]")) return; // portfolio arrows: the slide itself whooshes (below)
     const el = t.closest("a,button,[role=button]"); if (!el) return;
     buzz(6);
     if (el.matches("button[type=submit]")) return play("success");
@@ -606,6 +607,26 @@
   }), { threshold: 0.2 });
   const watch = () => SIG.forEach(([sel, n]) => { const el = document.querySelector(sel); if (el && !el.dataset.ibSnd) { el.dataset.ibSnd = n; io.observe(el); } });
   setInterval(watch, 2000); watch();
+
+  // portfolio sliding: whoosh when a row starts to slide (drag, swipe, arrows or the pinned scroll), and again for
+  // every further card if it keeps going; a row is "at rest" again after 220 ms without movement
+  const slid = new WeakMap(); let lastSlide = 0;
+  function slideCheck() {
+    if (!ready()) return;
+    document.querySelectorAll("#ib-demos .ibd-track").forEach((tr) => {
+      const m = /translate3d\((-?[\d.]+)px/.exec(tr.style.transform || ""), pos = tr.scrollLeft - (m ? +m[1] : 0);
+      let st = slid.get(tr); if (!st) slid.set(tr, (st = { rest: 0, fired: null, t: 0 })); // every row starts at 0
+      clearTimeout(st.t); st.t = setTimeout(() => { st.rest = pos; st.fired = null; }, 220);
+      const card = tr.querySelector(".ibd-card"), w = card ? card.offsetWidth : 300;
+      const ref = st.fired == null ? st.rest : st.fired, d = pos - ref;
+      if (Math.abs(d) < (st.fired == null ? 40 : w)) return;
+      st.fired = pos;
+      const now = performance.now(); if (now - lastSlide < 260) return; lastSlide = now;
+      const k = d > 0 ? 1 : -1;
+      swoosh(ac.currentTime, 0.75, -0.6 * k, 0.6 * k, k > 0 ? 350 : 2000, k > 0 ? 2400 : 450, 0.42);
+    });
+  }
+  addEventListener("scroll", slideCheck, { passive: true, capture: true }); // capture also catches the rows' own sideways scroll
 
   // floating toggle + one-time hint
   const b = document.createElement("button");
