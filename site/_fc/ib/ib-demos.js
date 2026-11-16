@@ -462,171 +462,118 @@
   }, true);
 })();
 
-// UI sounds v2: a small generative sound design, all synthesized with Web Audio (no audio files).
-// Everything is tuned to D-major pentatonic so consecutive clicks form a melody; sounds are panned to where they
-// happen and sent through a soft generated reverb. Nothing plays until the visitor's first tap/click/key (browser
-// rule). Floating toggle bottom-left mutes; the choice is remembered.
+// UI sounds v3: whoosh-only sound design, synthesized with Web Audio (no audio files). Each kind of movement has its
+// own whoosh, panned in the direction things move. Nothing plays until the visitor's first tap/click/key (browser rule).
+// Floating toggle bottom-left mutes; the choice is remembered.
 (function () {
   const KEY = "ib-sound";
   let on = true;
   try { on = localStorage.getItem(KEY) !== "off"; } catch (_) {}
-  const fine = matchMedia("(hover:hover) and (pointer:fine)").matches;
-  const SCALE = [293.66, 329.63, 369.99, 440, 493.88]; // D E F# A B
-  const note = (i) => SCALE[((i % 5) + 5) % 5] * Math.pow(2, Math.floor(i / 5)); // i=0 -> D4, 5 -> D5 ...
-  let ac, out, wet, noise, step = 7, lastScrollY = scrollY, dir = 1;
+  let ac, out, wet, noise, lastScrollY = scrollY, dir = 1, lastW = 0;
 
   function ctx() {
     if (!ac) {
       const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
       ac = new AC();
       const comp = ac.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4; comp.connect(ac.destination);
-      out = ac.createGain(); out.gain.value = 0.85; out.connect(comp);
-      // generated stereo reverb tail (1.6 s)
-      const len = Math.floor(ac.sampleRate * 1.6), ir = ac.createBuffer(2, len, ac.sampleRate);
-      for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, 3.2); }
+      out = ac.createGain(); out.gain.value = 0.9; out.connect(comp);
+      const len = Math.floor(ac.sampleRate * 1.4), ir = ac.createBuffer(2, len, ac.sampleRate); // soft generated room
+      for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, 3.5); }
       const conv = ac.createConvolver(); conv.buffer = ir;
-      wet = ac.createGain(); wet.gain.value = 0.32; wet.connect(conv).connect(comp);
-      noise = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
-      const d = noise.getChannelData(0); for (let k = 0; k < d.length; k++) d[k] = Math.random() * 2 - 1;
+      wet = ac.createGain(); wet.gain.value = 0.3; wet.connect(conv).connect(comp);
+      noise = ac.createBuffer(1, ac.sampleRate * 2, ac.sampleRate);
+      const d = noise.getChannelData(0); let b = 0;
+      for (let k = 0; k < d.length; k++) { const w = Math.random() * 2 - 1; b = 0.97 * b + 0.03 * w; d[k] = w * 0.6 + b * 3; } // airy noise with some body
     }
     if (ac.state === "suspended") ac.resume();
     return ac;
   }
   const ready = () => on && ac && ac.state === "running";
-  const panOf = (x) => Math.max(-0.7, Math.min(0.7, (x / innerWidth) * 2 - 1)) * 0.8;
 
-  // one output bus per sound: pan -> dry + reverb send
-  function bus(pan, send) {
-    const g = ac.createGain(), p = ac.createStereoPanner ? ac.createStereoPanner() : null;
-    if (p) { p.pan.value = pan || 0; g.connect(p); p.connect(out); } else g.connect(out);
-    if (send) { const s = ac.createGain(); s.gain.value = send; g.connect(s).connect(wet); }
-    return g;
-  }
-  // FM bell / marimba voice
-  function bell(f, t, o) {
-    o = o || {};
-    const dur = o.dur || 0.9, vol = o.vol || 0.07, b = bus(o.pan, o.send == null ? 0.6 : o.send);
-    const c = ac.createOscillator(), m = ac.createOscillator(), mg = ac.createGain(), g = ac.createGain();
-    c.frequency.value = f; m.frequency.value = f * (o.ratio || 3.5);
-    mg.gain.setValueAtTime(f * (o.index || 2.2), t); mg.gain.exponentialRampToValueAtTime(f * 0.05, t + dur * 0.5);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    m.connect(mg).connect(c.frequency); c.connect(g).connect(b);
-    c.start(t); m.start(t); c.stop(t + dur + 0.05); m.stop(t + dur + 0.05);
-  }
-  function tone(f, t, dur, vol, type, pan, send, glideTo) {
-    const o = ac.createOscillator(), g = ac.createGain(), b = bus(pan, send || 0);
-    o.type = type || "sine"; o.frequency.setValueAtTime(f, t); if (glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, t + dur);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g).connect(b); o.start(t); o.stop(t + dur + 0.05);
-  }
-  function swoosh(t, k, from, to, f0, f1, dur) {
+  // one whoosh: band-passed noise; filter sweeps f[0] -> f[1] -> f[2], pans p[0] -> p[1], swells then fades
+  function whoosh(o) {
+    const t = ac.currentTime + (o.delay || 0), dur = o.dur, f = o.f, p = o.p || [0, 0];
     const src = ac.createBufferSource(); src.buffer = noise;
-    const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 1.4;
-    bp.frequency.setValueAtTime(f0, t); bp.frequency.exponentialRampToValueAtTime(f1, t + dur * 0.55); bp.frequency.exponentialRampToValueAtTime(f0 * 1.5, t + dur);
-    const g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.12 * k, t + dur * 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = o.q || 1.2;
+    bp.frequency.setValueAtTime(f[0], t); bp.frequency.exponentialRampToValueAtTime(f[1], t + dur * (o.peak || 0.45)); bp.frequency.exponentialRampToValueAtTime(f[2], t + dur);
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(o.vol, t + dur * (o.peak || 0.45)); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     let tail = g;
-    if (ac.createStereoPanner) { const p = ac.createStereoPanner(); p.pan.setValueAtTime(from, t); p.pan.linearRampToValueAtTime(to, t + dur); g.connect(p); tail = p; }
-    tail.connect(out); const s = ac.createGain(); s.gain.value = 0.25; tail.connect(s).connect(wet);
-    src.connect(bp).connect(g); src.start(t, Math.random() * 0.4); src.stop(t + dur + 0.05);
+    if (ac.createStereoPanner) { const pn = ac.createStereoPanner(); pn.pan.setValueAtTime(p[0], t); pn.pan.linearRampToValueAtTime(p[1], t + dur); g.connect(pn); tail = pn; }
+    tail.connect(out); const s = ac.createGain(); s.gain.value = o.room == null ? 0.3 : o.room; tail.connect(s).connect(wet);
+    src.connect(bp).connect(g); src.start(t, Math.random()); src.stop(t + dur + 0.05);
   }
-
-  const S = {
-    tick(pan) { tone(3200, ac.currentTime, 0.03, 0.012, "triangle", pan); },
-    harp(i, pan) { bell(note(10 + i), ac.currentTime, { vol: 0.03, dur: 0.5, index: 0.8, ratio: 2, pan, send: 0.5 }); },
-    click(pan) { // generative melody: random walk on the pentatonic scale
-      step += [-2, -1, 1, 1, 2][Math.floor(Math.random() * 5)]; if (step < 5) step = 7; if (step > 13) step = 10;
-      bell(note(step), ac.currentTime, { pan }); },
-    sparkle(pan) { const t = ac.currentTime; [10, 12, 13, 15].forEach((n, k) => bell(note(n), t + k * 0.06, { vol: 0.05, dur: 0.8, pan })); },
-    whoosh(k, pan) { const t = ac.currentTime; swoosh(t, k || 1, -(pan || 0.6), pan || 0.6, dir > 0 ? 300 : 2200, dir > 0 ? 2600 : 400, 0.5); },
-    tap() { tone(1800 + Math.random() * 500, ac.currentTime, 0.025, 0.012, "triangle", (Math.random() - 0.5) * 0.4); },
-    success() { const t = ac.currentTime; [5, 7, 8, 10, 12].forEach((n, k) => bell(note(n), t + k * 0.08, { vol: 0.06, dur: 1.2 })); },
-    jingle() { const t = ac.currentTime; [5, 7, 8, 10].forEach((n, k) => bell(note(n), t + k * 0.09, { vol: 0.055, dur: 1 })); },
-    // section signatures
-    services() { const t = ac.currentTime; swoosh(t, 0.7, -0.6, 0.6, 300, 2400, 0.5); bell(note(10), t + 0.25, { vol: 0.04 }); },
-    portfolio() { const t = ac.currentTime; swoosh(t, 0.9, 0.7, -0.7, 2400, 250, 0.7);
-      tone(110, t + 0.25, 0.9, 0.16, "sine", 0, 0.2, 42);   // sub drop
-      [15, 17, 18].forEach((n, k) => bell(note(n), t + 0.3 + k * 0.07, { vol: 0.025, dur: 1.2, send: 0.9 })); },
-    process() { const t = ac.currentTime; [7, 8, 10].forEach((n, k) => bell(note(n), t + k * 0.14, { vol: 0.05, pan: -0.5 + k * 0.5 })); },
-    team() { const t = ac.currentTime; [0, 1, 2, 3].forEach((k) => tone(420 + k * 120, t + 0.15 + k * 0.11, 0.12, 0.05, "sine", -0.6 + k * 0.4, 0.3, 900 + k * 200)); },
-    stats() { const t = ac.currentTime; let tt = 0; for (let k = 0; k < 12; k++) { tt += 0.03 + k * k * 0.0016; tone(2600, t + tt, 0.02, 0.012, "square", 0); } bell(note(12), t + tt + 0.05, { vol: 0.045 }); },
-    awards() { const t = ac.currentTime; [5, 8, 10, 12].forEach((n) => bell(note(n), t, { vol: 0.03, dur: 1.6, ratio: 2.76, index: 1.4 })); },
-    contact() { const t = ac.currentTime; [0, 2, 3, 5].forEach((n, k) => tone(note(n) / 2, t + k * 0.04, 1.6, 0.03, "triangle", -0.4 + k * 0.27, 0.8)); },
+  const W = {
+    // a card slides sideways: short, crisp, follows the direction
+    swipe(k) { whoosh({ dur: 0.38, f: k > 0 ? [500, 3200, 1400] : [2600, 600, 400], p: [-0.7 * k, 0.7 * k], vol: 0.13, q: 1.6, peak: 0.4 }); },
+    // switching portfolio category: two quick flicks
+    tab() { whoosh({ dur: 0.22, f: [900, 4200, 2000], p: [-0.3, 0.4], vol: 0.09, q: 2.2, peak: 0.35 }); whoosh({ delay: 0.09, dur: 0.3, f: [1400, 3600, 900], p: [0.4, -0.2], vol: 0.07, q: 2, peak: 0.4 }); },
+    // jumping to a section from the navbar: long, deep fly-by
+    nav(k) { whoosh({ dur: 0.85, f: k > 0 ? [180, 1800, 260] : [1600, 220, 160], p: [-0.5, 0.5], vol: 0.16, q: 0.9, peak: 0.5, room: 0.45 }); },
+    // a main section scrolls into view: soft wide air
+    section(k) { whoosh({ dur: 0.7, f: k > 0 ? [250, 1300, 500] : [1300, 300, 250], p: [-0.4 * k, 0.4 * k], vol: 0.07, q: 0.7, peak: 0.5, room: 0.5 }); },
+    // video opens: reverse swell that rises into it; closes: falling release
+    open() { whoosh({ dur: 0.55, f: [200, 3000, 3200], p: [0, 0], vol: 0.13, q: 1.1, peak: 0.85, room: 0.5 }); },
+    close() { whoosh({ dur: 0.4, f: [2800, 500, 250], p: [0, 0], vol: 0.11, q: 1.2, peak: 0.2 }); },
+    // accordion / small toggles: tiny flick
+    flick() { whoosh({ dur: 0.2, f: [1200, 3800, 2400], p: [-0.2, 0.2], vol: 0.06, q: 2.5, peak: 0.35, room: 0.15 }); },
   };
-  const play = (n, ...a) => { if (ready()) { try { S[n](...a); } catch (_) {} } };
-  const buzz = (ms) => { if (on && !fine && navigator.vibrate) try { navigator.vibrate(ms); } catch (_) {} };
+  const play = (n, a) => { if (!ready()) return; try { W[n](a); } catch (_) {} };
+  const swipe = (k) => { const now = performance.now(); if (now - lastW < 260) return; lastW = now; play("swipe", k); };
 
   const unlock = () => { if (on) ctx(); };
   addEventListener("pointerdown", unlock, { capture: true, passive: true });
-  addEventListener("keydown", unlock, { capture: true });
+  addEventListener("keydown", (e) => { unlock(); if (e.key === "Escape" && document.querySelector(".ibd-lb")) play("close"); }, { capture: true });
 
-  // clicks
-  const CTA = /^(start a project|contact us|contact|send|submit|explore services|let'?s talk|get started)/i;
   addEventListener("click", (e) => {
     const t = e.target; if (!t.closest || t.closest("#ib-snd")) return;
-    const pan = panOf(e.clientX || innerWidth / 2);
-    if (t.closest(".ibd-tabs button,.ibd-btn,.framer-5y3nqz,[data-framer-name*='Arrow']")) { buzz(8); return play("whoosh", 0.8, pan || 0.6); }
-    if (t.closest(".ibd-ch [data-d]")) return; // portfolio arrows: the slide itself whooshes (below)
-    const el = t.closest("a,button,[role=button]"); if (!el) return;
-    buzz(6);
-    if (el.matches("button[type=submit]")) return play("success");
-    play(CTA.test((el.textContent || "").trim()) ? "sparkle" : "click", pan);
+    if (t.closest(".ibd-x") || t.classList.contains("ibd-lb")) return play("close");
+    if (t.closest(".ibd-tabs button")) return play("tab");
+    if (t.closest(".ibd-btn")) return play("open");
+    if (t.closest(".ibd-ch [data-d]")) return;                       // the row slide itself whooshes (below)
+    const arrow = t.closest(".framer-5y3nqz,[data-framer-name*='Arrow']");
+    if (arrow) { const r = arrow.getBoundingClientRect(); return swipe(r.left + r.width / 2 > innerWidth / 2 ? 1 : -1); }
+    const a = t.closest("a");
+    if (a) { // in-page jump (navbar, footer, CTA): whoosh in the direction of travel
+      const h = a.getAttribute("href") || "", txt = (a.textContent || "").trim().toLowerCase();
+      const id = /#([\w-]+)$/.test(h) ? h.split("#").pop() : /^(contact|contact us|start a project)$/.test(txt) ? "contact" : txt === "services" ? "services" : "";
+      const el = id && document.getElementById(id);
+      if (el) return play("nav", el.getBoundingClientRect().top >= 0 ? 1 : -1);
+      return;
+    }
+    if (t.closest("#services") && !t.closest("a,input,textarea")) return play("flick"); // services accordion
   }, true);
 
-  // hover: nav items play harp notes by position, other controls a soft tick
-  if (fine) {
-    let cur = null, last = 0;
-    addEventListener("pointerover", (e) => {
-      const el = e.target.closest && e.target.closest("a,button,[role=button]");
-      if (!el || el === cur || el.id === "ib-snd") return; cur = el;
-      const now = performance.now(); if (now - last < 60) return; last = now;
-      const r = el.getBoundingClientRect(), pan = panOf(r.left + r.width / 2);
-      if (r.top < 120 && r.height < 80) { const nav = [...document.querySelectorAll("a")].filter((a) => { const q = a.getBoundingClientRect(); return q.top < 120 && q.height < 80 && q.width > 0; }); return play("harp", Math.max(0, nav.indexOf(el)), pan); }
-      play("tick", pan);
-    }, { passive: true });
-    addEventListener("pointerout", (e) => { if (cur && !cur.contains(e.relatedTarget)) cur = null; }, { passive: true });
+  // sideways sliders: portfolio rows (and the Process cards on phones). Whoosh when a slide starts, and again per card
+  // if it keeps going; a slider is "at rest" again after 220 ms without movement.
+  const slid = new WeakMap();
+  function slideCheck() {
+    if (!ready()) return;
+    document.querySelectorAll("#ib-demos .ibd-track,.framer-1tflpem .framer-1un4fms").forEach((tr) => {
+      const m = /translate3d\((-?[\d.]+)px/.exec(tr.style.transform || ""), pos = tr.scrollLeft - (m ? +m[1] : 0);
+      let st = slid.get(tr); if (!st) slid.set(tr, (st = { rest: 0, fired: null, t: 0 })); // every slider starts at 0
+      clearTimeout(st.t); st.t = setTimeout(() => { st.rest = pos; st.fired = null; }, 220);
+      const card = tr.querySelector(".ibd-card,.framer-WK4dm"), w = card ? card.offsetWidth : 300;
+      const d = pos - (st.fired == null ? st.rest : st.fired);
+      if (Math.abs(d) < (st.fired == null ? 40 : w)) return;
+      st.fired = pos; swipe(d > 0 ? 1 : -1);
+    });
   }
+  addEventListener("scroll", slideCheck, { passive: true, capture: true }); // capture also catches the sliders' own scroll
 
-  // typing in the contact form
-  let lastTap = 0;
-  addEventListener("keydown", (e) => {
-    if (!e.target.matches || !e.target.matches("input,textarea") || e.key.length > 1 && e.key !== "Backspace") return;
-    const now = performance.now(); if (now - lastTap < 35) return; lastTap = now; play("tap");
-  }, true);
-
-  // section signatures, the first time each one scrolls into view
-  let userScrolled = false, lastSig = 0;
+  // main sections: soft air whoosh the first time each scrolls into view
+  let userScrolled = false, lastSec = 0;
   addEventListener("scroll", () => { userScrolled = true; const y = scrollY; if (Math.abs(y - lastScrollY) > 4) dir = y > lastScrollY ? 1 : -1; lastScrollY = y; }, { passive: true });
-  const SIG = [["#about", "whoosh"], ["#services", "services"], ["#works", "whoosh"], ["#ib-demos", "portfolio"], [".framer-1tflpem", "process"],
-    ['[data-framer-name="Team Members"]', "team"], ['[data-framer-name="Statistics"]', "stats"], ['[data-framer-name="Awards"]', "awards"], ["#contact", "contact"]];
+  const SECS = ["#services", "#works", "#ib-demos", ".framer-1tflpem", '[data-framer-name="Team Members"]', '[data-framer-name="Awards"]', "#contact"];
   const seen = new WeakSet();
   const io = new IntersectionObserver((es) => es.forEach((en) => {
     if (!en.isIntersecting || seen.has(en.target) || !userScrolled) return;
     seen.add(en.target);
-    const now = performance.now(); if (now - lastSig < 550) return; lastSig = now;
-    play(en.target.dataset.ibSnd, 0.55);
+    const now = performance.now(); if (now - lastSec < 800 || now - lastW < 300) return; lastSec = now;
+    play("section", dir);
   }), { threshold: 0.2 });
-  const watch = () => SIG.forEach(([sel, n]) => { const el = document.querySelector(sel); if (el && !el.dataset.ibSnd) { el.dataset.ibSnd = n; io.observe(el); } });
+  const watch = () => SECS.forEach((sel) => { const el = document.querySelector(sel); if (el && !el.dataset.ibSnd) { el.dataset.ibSnd = 1; io.observe(el); } });
   setInterval(watch, 2000); watch();
-
-  // portfolio sliding: whoosh when a row starts to slide (drag, swipe, arrows or the pinned scroll), and again for
-  // every further card if it keeps going; a row is "at rest" again after 220 ms without movement
-  const slid = new WeakMap(); let lastSlide = 0;
-  function slideCheck() {
-    if (!ready()) return;
-    document.querySelectorAll("#ib-demos .ibd-track").forEach((tr) => {
-      const m = /translate3d\((-?[\d.]+)px/.exec(tr.style.transform || ""), pos = tr.scrollLeft - (m ? +m[1] : 0);
-      let st = slid.get(tr); if (!st) slid.set(tr, (st = { rest: 0, fired: null, t: 0 })); // every row starts at 0
-      clearTimeout(st.t); st.t = setTimeout(() => { st.rest = pos; st.fired = null; }, 220);
-      const card = tr.querySelector(".ibd-card"), w = card ? card.offsetWidth : 300;
-      const ref = st.fired == null ? st.rest : st.fired, d = pos - ref;
-      if (Math.abs(d) < (st.fired == null ? 40 : w)) return;
-      st.fired = pos;
-      const now = performance.now(); if (now - lastSlide < 260) return; lastSlide = now;
-      const k = d > 0 ? 1 : -1;
-      swoosh(ac.currentTime, 0.75, -0.6 * k, 0.6 * k, k > 0 ? 350 : 2000, k > 0 ? 2400 : 450, 0.42);
-    });
-  }
-  addEventListener("scroll", slideCheck, { passive: true, capture: true }); // capture also catches the rows' own sideways scroll
 
   // floating toggle + one-time hint
   const b = document.createElement("button");
@@ -635,7 +582,7 @@
   const sync = () => { b.classList.toggle("off", !on); b.setAttribute("aria-label", on ? "Mute site sounds" : "Turn on site sounds"); b.title = on ? "Sound on" : "Sound off"; };
   b.addEventListener("click", () => {
     on = !on; try { localStorage.setItem(KEY, on ? "on" : "off"); } catch (_) {}
-    b.classList.remove("hint"); sync(); if (on) { ctx(); setTimeout(() => play("jingle"), 30); }
+    b.classList.remove("hint"); sync(); if (on) { ctx(); setTimeout(() => play("flick"), 30); }
   });
   sync();
   const add = () => document.body && !document.getElementById("ib-snd") && document.body.appendChild(b);
