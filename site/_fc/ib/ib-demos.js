@@ -462,104 +462,162 @@
   }, true);
 })();
 
-// UI sounds: synthesized with Web Audio (no audio files to download). Browsers only allow sound after the
-// visitor's first tap/click/key, so nothing plays on page load. Floating toggle (bottom-left) mutes; choice is remembered.
+// UI sounds v2: a small generative sound design, all synthesized with Web Audio (no audio files).
+// Everything is tuned to D-major pentatonic so consecutive clicks form a melody; sounds are panned to where they
+// happen and sent through a soft generated reverb. Nothing plays until the visitor's first tap/click/key (browser
+// rule). Floating toggle bottom-left mutes; the choice is remembered.
 (function () {
   const KEY = "ib-sound";
   let on = true;
   try { on = localStorage.getItem(KEY) !== "off"; } catch (_) {}
-  let ac = null, master = null, noise = null, userScrolled = false, lastWhoosh = 0, lastTick = 0;
   const fine = matchMedia("(hover:hover) and (pointer:fine)").matches;
+  const SCALE = [293.66, 329.63, 369.99, 440, 493.88]; // D E F# A B
+  const note = (i) => SCALE[((i % 5) + 5) % 5] * Math.pow(2, Math.floor(i / 5)); // i=0 -> D4, 5 -> D5 ...
+  let ac, out, wet, noise, step = 7, lastScrollY = scrollY, dir = 1;
 
   function ctx() {
     if (!ac) {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return null;
+      const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
       ac = new AC();
-      master = ac.createGain(); master.gain.value = 0.9; master.connect(ac.destination);
+      const comp = ac.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 4; comp.connect(ac.destination);
+      out = ac.createGain(); out.gain.value = 0.85; out.connect(comp);
+      // generated stereo reverb tail (1.6 s)
+      const len = Math.floor(ac.sampleRate * 1.6), ir = ac.createBuffer(2, len, ac.sampleRate);
+      for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let k = 0; k < len; k++) d[k] = (Math.random() * 2 - 1) * Math.pow(1 - k / len, 3.2); }
+      const conv = ac.createConvolver(); conv.buffer = ir;
+      wet = ac.createGain(); wet.gain.value = 0.32; wet.connect(conv).connect(comp);
       noise = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
-      const d = noise.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const d = noise.getChannelData(0); for (let k = 0; k < d.length; k++) d[k] = Math.random() * 2 - 1;
     }
     if (ac.state === "suspended") ac.resume();
     return ac;
   }
   const ready = () => on && ac && ac.state === "running";
+  const panOf = (x) => Math.max(-0.7, Math.min(0.7, (x / innerWidth) * 2 - 1)) * 0.8;
 
-  function tone(freq, t0, dur, vol, type) {
-    const o = ac.createOscillator(), g = ac.createGain();
-    o.type = type || "sine"; o.frequency.value = freq;
-    g.gain.setValueAtTime(0, t0);
-    g.gain.linearRampToValueAtTime(vol, t0 + 0.005);
-    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-    o.connect(g).connect(master); o.start(t0); o.stop(t0 + dur + 0.02);
+  // one output bus per sound: pan -> dry + reverb send
+  function bus(pan, send) {
+    const g = ac.createGain(), p = ac.createStereoPanner ? ac.createStereoPanner() : null;
+    if (p) { p.pan.value = pan || 0; g.connect(p); p.connect(out); } else g.connect(out);
+    if (send) { const s = ac.createGain(); s.gain.value = send; g.connect(s).connect(wet); }
+    return g;
   }
-  const S = {
-    tick() { // hover: tiny glassy tick
-      const t = ac.currentTime; tone(2400, t, 0.04, 0.018); },
-    bell() { // click: soft bell (fundamental + inharmonic partials)
-      const t = ac.currentTime;
-      tone(880, t, 0.55, 0.06); tone(880 * 2.76, t, 0.25, 0.018); tone(880 * 5.4, t, 0.12, 0.008); },
-    whoosh(strength) { // section change / tab switch: band-passed noise sweep
-      const t = ac.currentTime, k = strength || 1;
-      const src = ac.createBufferSource(); src.buffer = noise;
-      const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 1.2;
-      bp.frequency.setValueAtTime(300, t); bp.frequency.exponentialRampToValueAtTime(2600, t + 0.22); bp.frequency.exponentialRampToValueAtTime(900, t + 0.45);
-      const g = ac.createGain();
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.11 * k, t + 0.12); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-      src.connect(bp).connect(g).connect(master); src.start(t); src.stop(t + 0.55); },
-    chime() { // sound switched on
-      const t = ac.currentTime; tone(659, t, 0.4, 0.05); tone(988, t + 0.09, 0.5, 0.05); },
-  };
-  const play = (n, a) => { if (ready()) S[n](a); };
+  // FM bell / marimba voice
+  function bell(f, t, o) {
+    o = o || {};
+    const dur = o.dur || 0.9, vol = o.vol || 0.07, b = bus(o.pan, o.send == null ? 0.6 : o.send);
+    const c = ac.createOscillator(), m = ac.createOscillator(), mg = ac.createGain(), g = ac.createGain();
+    c.frequency.value = f; m.frequency.value = f * (o.ratio || 3.5);
+    mg.gain.setValueAtTime(f * (o.index || 2.2), t); mg.gain.exponentialRampToValueAtTime(f * 0.05, t + dur * 0.5);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    m.connect(mg).connect(c.frequency); c.connect(g).connect(b);
+    c.start(t); m.start(t); c.stop(t + dur + 0.05); m.stop(t + dur + 0.05);
+  }
+  function tone(f, t, dur, vol, type, pan, send, glideTo) {
+    const o = ac.createOscillator(), g = ac.createGain(), b = bus(pan, send || 0);
+    o.type = type || "sine"; o.frequency.setValueAtTime(f, t); if (glideTo) o.frequency.exponentialRampToValueAtTime(glideTo, t + dur);
+    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g).connect(b); o.start(t); o.stop(t + dur + 0.05);
+  }
+  function swoosh(t, k, from, to, f0, f1, dur) {
+    const src = ac.createBufferSource(); src.buffer = noise;
+    const bp = ac.createBiquadFilter(); bp.type = "bandpass"; bp.Q.value = 1.4;
+    bp.frequency.setValueAtTime(f0, t); bp.frequency.exponentialRampToValueAtTime(f1, t + dur * 0.55); bp.frequency.exponentialRampToValueAtTime(f0 * 1.5, t + dur);
+    const g = ac.createGain(); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.12 * k, t + dur * 0.35); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    let tail = g;
+    if (ac.createStereoPanner) { const p = ac.createStereoPanner(); p.pan.setValueAtTime(from, t); p.pan.linearRampToValueAtTime(to, t + dur); g.connect(p); tail = p; }
+    tail.connect(out); const s = ac.createGain(); s.gain.value = 0.25; tail.connect(s).connect(wet);
+    src.connect(bp).connect(g); src.start(t, Math.random() * 0.4); src.stop(t + dur + 0.05);
+  }
 
-  // unlock on the first real interaction
+  const S = {
+    tick(pan) { tone(3200, ac.currentTime, 0.03, 0.012, "triangle", pan); },
+    harp(i, pan) { bell(note(10 + i), ac.currentTime, { vol: 0.03, dur: 0.5, index: 0.8, ratio: 2, pan, send: 0.5 }); },
+    click(pan) { // generative melody: random walk on the pentatonic scale
+      step += [-2, -1, 1, 1, 2][Math.floor(Math.random() * 5)]; if (step < 5) step = 7; if (step > 13) step = 10;
+      bell(note(step), ac.currentTime, { pan }); },
+    sparkle(pan) { const t = ac.currentTime; [10, 12, 13, 15].forEach((n, k) => bell(note(n), t + k * 0.06, { vol: 0.05, dur: 0.8, pan })); },
+    whoosh(k, pan) { const t = ac.currentTime; swoosh(t, k || 1, -(pan || 0.6), pan || 0.6, dir > 0 ? 300 : 2200, dir > 0 ? 2600 : 400, 0.5); },
+    tap() { tone(1800 + Math.random() * 500, ac.currentTime, 0.025, 0.012, "triangle", (Math.random() - 0.5) * 0.4); },
+    success() { const t = ac.currentTime; [5, 7, 8, 10, 12].forEach((n, k) => bell(note(n), t + k * 0.08, { vol: 0.06, dur: 1.2 })); },
+    jingle() { const t = ac.currentTime; [5, 7, 8, 10].forEach((n, k) => bell(note(n), t + k * 0.09, { vol: 0.055, dur: 1 })); },
+    // section signatures
+    services() { const t = ac.currentTime; swoosh(t, 0.7, -0.6, 0.6, 300, 2400, 0.5); bell(note(10), t + 0.25, { vol: 0.04 }); },
+    portfolio() { const t = ac.currentTime; swoosh(t, 0.9, 0.7, -0.7, 2400, 250, 0.7);
+      tone(110, t + 0.25, 0.9, 0.16, "sine", 0, 0.2, 42);   // sub drop
+      [15, 17, 18].forEach((n, k) => bell(note(n), t + 0.3 + k * 0.07, { vol: 0.025, dur: 1.2, send: 0.9 })); },
+    process() { const t = ac.currentTime; [7, 8, 10].forEach((n, k) => bell(note(n), t + k * 0.14, { vol: 0.05, pan: -0.5 + k * 0.5 })); },
+    team() { const t = ac.currentTime; [0, 1, 2, 3].forEach((k) => tone(420 + k * 120, t + 0.15 + k * 0.11, 0.12, 0.05, "sine", -0.6 + k * 0.4, 0.3, 900 + k * 200)); },
+    stats() { const t = ac.currentTime; let tt = 0; for (let k = 0; k < 12; k++) { tt += 0.03 + k * k * 0.0016; tone(2600, t + tt, 0.02, 0.012, "square", 0); } bell(note(12), t + tt + 0.05, { vol: 0.045 }); },
+    awards() { const t = ac.currentTime; [5, 8, 10, 12].forEach((n) => bell(note(n), t, { vol: 0.03, dur: 1.6, ratio: 2.76, index: 1.4 })); },
+    contact() { const t = ac.currentTime; [0, 2, 3, 5].forEach((n, k) => tone(note(n) / 2, t + k * 0.04, 1.6, 0.03, "triangle", -0.4 + k * 0.27, 0.8)); },
+  };
+  const play = (n, ...a) => { if (ready()) { try { S[n](...a); } catch (_) {} } };
+  const buzz = (ms) => { if (on && !fine && navigator.vibrate) try { navigator.vibrate(ms); } catch (_) {} };
+
   const unlock = () => { if (on) ctx(); };
   addEventListener("pointerdown", unlock, { capture: true, passive: true });
   addEventListener("keydown", unlock, { capture: true });
 
-  // clicks: whoosh for slide/tab controls, bell for everything else clickable
+  // clicks
+  const CTA = /^(start a project|contact us|contact|send|submit|explore services|let'?s talk|get started)/i;
   addEventListener("click", (e) => {
-    const el = e.target.closest && e.target.closest("a,button,[role=button],[data-framer-name]");
-    if (!el || e.target.closest("#ib-snd")) return;
-    if (e.target.closest(".ibd-tabs button,.ibd-btn,.framer-5y3nqz,[data-framer-name*='Arrow']")) return play("whoosh", 0.8);
-    if (el.matches("a,button,[role=button]") || el.closest("a,button,[role=button]")) play("bell");
+    const t = e.target; if (!t.closest || t.closest("#ib-snd")) return;
+    const pan = panOf(e.clientX || innerWidth / 2);
+    if (t.closest(".ibd-tabs button,.ibd-btn,.framer-5y3nqz,[data-framer-name*='Arrow']")) { buzz(8); return play("whoosh", 0.8, pan || 0.6); }
+    const el = t.closest("a,button,[role=button]"); if (!el) return;
+    buzz(6);
+    if (el.matches("button[type=submit]")) return play("success");
+    play(CTA.test((el.textContent || "").trim()) ? "sparkle" : "click", pan);
   }, true);
 
-  // hover ticks (mouse only), once per element entry
+  // hover: nav items play harp notes by position, other controls a soft tick
   if (fine) {
-    let cur = null;
+    let cur = null, last = 0;
     addEventListener("pointerover", (e) => {
       const el = e.target.closest && e.target.closest("a,button,[role=button]");
-      if (!el || el === cur) return; cur = el;
-      const now = performance.now(); if (now - lastTick < 70) return; lastTick = now;
-      play("tick");
+      if (!el || el === cur || el.id === "ib-snd") return; cur = el;
+      const now = performance.now(); if (now - last < 60) return; last = now;
+      const r = el.getBoundingClientRect(), pan = panOf(r.left + r.width / 2);
+      if (r.top < 120 && r.height < 80) { const nav = [...document.querySelectorAll("a")].filter((a) => { const q = a.getBoundingClientRect(); return q.top < 120 && q.height < 80 && q.width > 0; }); return play("harp", Math.max(0, nav.indexOf(el)), pan); }
+      play("tick", pan);
     }, { passive: true });
     addEventListener("pointerout", (e) => { if (cur && !cur.contains(e.relatedTarget)) cur = null; }, { passive: true });
   }
 
-  // a soft whoosh the first time each main section scrolls into view
-  addEventListener("scroll", () => { userScrolled = true; }, { passive: true, once: true });
+  // typing in the contact form
+  let lastTap = 0;
+  addEventListener("keydown", (e) => {
+    if (!e.target.matches || !e.target.matches("input,textarea") || e.key.length > 1 && e.key !== "Backspace") return;
+    const now = performance.now(); if (now - lastTap < 35) return; lastTap = now; play("tap");
+  }, true);
+
+  // section signatures, the first time each one scrolls into view
+  let userScrolled = false, lastSig = 0;
+  addEventListener("scroll", () => { userScrolled = true; const y = scrollY; if (Math.abs(y - lastScrollY) > 4) dir = y > lastScrollY ? 1 : -1; lastScrollY = y; }, { passive: true });
+  const SIG = [["#about", "whoosh"], ["#services", "services"], ["#works", "whoosh"], ["#ib-demos", "portfolio"], [".framer-1tflpem", "process"],
+    ['[data-framer-name="Team Members"]', "team"], ['[data-framer-name="Statistics"]', "stats"], ['[data-framer-name="Awards"]', "awards"], ["#contact", "contact"]];
   const seen = new WeakSet();
   const io = new IntersectionObserver((es) => es.forEach((en) => {
     if (!en.isIntersecting || seen.has(en.target) || !userScrolled) return;
     seen.add(en.target);
-    const now = performance.now(); if (now - lastWhoosh < 900) return; lastWhoosh = now;
-    play("whoosh", 0.55);
-  }), { threshold: 0.18 });
-  const watch = () => ["about", "services", "works", "ib-demos", "contact"].forEach((id) => { const el = document.getElementById(id); if (el && !el.dataset.ibSnd) { el.dataset.ibSnd = 1; io.observe(el); } });
-  const p = () => { const el = document.querySelector(".framer-1tflpem"); if (el && !el.dataset.ibSnd) { el.dataset.ibSnd = 1; io.observe(el); } };
-  setInterval(() => { watch(); p(); }, 2000); watch(); p();
+    const now = performance.now(); if (now - lastSig < 550) return; lastSig = now;
+    play(en.target.dataset.ibSnd, 0.55);
+  }), { threshold: 0.2 });
+  const watch = () => SIG.forEach(([sel, n]) => { const el = document.querySelector(sel); if (el && !el.dataset.ibSnd) { el.dataset.ibSnd = n; io.observe(el); } });
+  setInterval(watch, 2000); watch();
 
-  // floating mute toggle
+  // floating toggle + one-time hint
   const b = document.createElement("button");
   b.id = "ib-snd"; b.type = "button";
-  b.innerHTML = '<span></span><span></span><span></span><span></span>';
+  b.innerHTML = '<span></span><span></span><span></span><span></span><i>Sound on &middot; tap to mute</i>';
   const sync = () => { b.classList.toggle("off", !on); b.setAttribute("aria-label", on ? "Mute site sounds" : "Turn on site sounds"); b.title = on ? "Sound on" : "Sound off"; };
   b.addEventListener("click", () => {
     on = !on; try { localStorage.setItem(KEY, on ? "on" : "off"); } catch (_) {}
-    sync(); if (on) { ctx(); setTimeout(() => play("chime"), 30); }
+    b.classList.remove("hint"); sync(); if (on) { ctx(); setTimeout(() => play("jingle"), 30); }
   });
   sync();
   const add = () => document.body && !document.getElementById("ib-snd") && document.body.appendChild(b);
   add(); addEventListener("DOMContentLoaded", add); setInterval(add, 3000);
+  try { if (!localStorage.getItem(KEY + "-hint") && on) { localStorage.setItem(KEY + "-hint", 1); setTimeout(() => b.classList.add("hint"), 2500); setTimeout(() => b.classList.remove("hint"), 7500); } } catch (_) {}
 })();
