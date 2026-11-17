@@ -234,16 +234,21 @@
     const a = f.querySelector("a.framer-13tcklb");
     if (!a) return;
     a.setAttribute("data-ib-feat", "");
+    if (a.getAttribute("href") !== "./#works") a.setAttribute("href", "./#works"); // React restores the template /work/ link
     const w = document.createTreeWalker(a, NodeFilter.SHOW_TEXT);
     for (let n; (n = w.nextNode());) { const v = FEAT.text[n.nodeValue.trim()]; if (v) n.nodeValue = v; }
     a.querySelectorAll("img").forEach((i) => { if (/0VrElWZWccBOKLdWFuKOXTqIki0/.test(i.src) && !i.src.includes("/ib/")) { i.removeAttribute("srcset"); i.src = FEAT.img; } });
   }
-  document.addEventListener("click", (e) => {
-    const a = e.target.closest && e.target.closest("a[data-ib-feat]");
+  // window capture runs before Framer's router; also catches the card before patchFeatured has marked it
+  addEventListener("click", (e) => {
+    const a = e.target.closest && e.target.closest('a[data-ib-feat],a[href^="./work/"],a[href^="/work/"]');
     if (!a) return;
-    e.preventDefault(); e.stopPropagation();
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
     openVideo(FEAT.yt, a, false);
   }, true);
+  // never stay on a leftover template /work/... page (client-side route or back button)
+  const offWork = () => { if (/^\/work\//.test(location.pathname)) location.replace("/"); };
+  offWork(); addEventListener("popstate", offWork); setInterval(offWork, 1000);
   // Founders card: replaces the template quote with a "Founders" label and both photos, each with its name beside it
   const FOUNDERS = [{ name: "Kunal Manjare", role: "CEO", img: null }, { name: "Pranav Patil", role: "CTO", img: "/_fc/ib/assets/pranav-founder-v5.webp" }];
   function patchQuote() {

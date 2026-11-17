@@ -23,6 +23,8 @@ for await (const f of walk("site")) {
   t = t.replace(/(<meta (?:property="og:image"|name="twitter:image") content=")[^"]*"/g, `$1http://localhost:3000/_fc/ib/og-image.png?v=${v}"`)
        .replace(/(<meta property="og:url" content=")[^"]*"/, '$1https://www.intellobyte.in/"');
   if (!t.includes('og:image:width')) t = t.replace('</head>', '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:site_name" content="Intellobyte"></head>');
+  // featured card linked to leftover template case studies: point it at the section instead (click opens the demo video)
+  t = t.replace(/href="\.\/work\/[^"]*"/g, 'href="./#works"');
   // below-the-fold images: don't fetch/decode until needed (first 6 stay eager for the hero)
   let k = 0;
   t = t.replace(/<img(?![^>]*loading=)/g, (m) => (++k > 6 ? '<img loading="lazy" decoding="async"' : m));

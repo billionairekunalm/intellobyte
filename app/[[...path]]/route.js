@@ -12,6 +12,8 @@ const ROOT = join(process.cwd(), "site");
 export async function GET(req, { params }) {
   const { path = [] } = await params;
   const origin = new URL(req.url).origin;
+  // leftover Framer-template case-study pages (/work/...): never show them, send visitors home
+  if (path[0] === "work") return Response.redirect(origin + "/", 307);
   let f = normalize(join(ROOT, ...path));
   if (!f.startsWith(ROOT)) return new Response("forbidden", { status: 403 });
   try { if ((await stat(f)).isDirectory()) f = join(f, "index.html"); }
