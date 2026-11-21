@@ -26,9 +26,15 @@ for await (const f of walk("site")) {
   // featured card linked to leftover template case studies: point it at the section instead (click opens the demo video)
   t = t.replace(/href="\.\/work\/[^"]*"/g, 'href="./#works"');
   { const c = /<link rel="canonical" href="([^"]*)"/.exec(t); if (c) t = t.replace(/(<meta property="og:url" content=")[^"]*"/, `$1${c[1]}"`); } // og:url = canonical
+  // undo the repeated lazy attributes an earlier build added (one copy is enough)
+  t = t.replace(/(?: loading="lazy" decoding="async"){2,}/g, ' loading="lazy" decoding="async"');
+  t = t.replace(/<img loading="lazy" decoding="async"(?=[^>]*\sloading=)/g, "<img"); // tag already had its own
+  // stale server HTML still had the template's placeholder team card; the live page renders Divyanshu Patil (match it,
+  // so Google sees the real person and React hydrates without a text mismatch)
+  t = t.replaceAll(">John Doe<", ">Divyanshu Patil<").replaceAll("k9AWPV5pBPUdxJt7SFCFqvLBGY", "u07YBaHc16abPJ4SfKOSMz3o9Y");
   // below-the-fold images: don't fetch/decode until needed (first 6 stay eager for the hero)
   let k = 0;
-  t = t.replace(/<img(?![^>]*loading=)/g, (m) => (++k > 6 ? '<img loading="lazy" decoding="async"' : m));
+  t = t.replace(/<img(?![^>]*\sloading=)/g, (m) => (++k > 6 ? '<img loading="lazy" decoding="async"' : m));
   await writeFile(f, t); n++;
 }
 console.log("demo section installed in", n, "pages");
