@@ -419,7 +419,20 @@
     sc.scrollTo({ left: Math.max(0, (at + (i === 0 ? -1 : 1))) * step, behavior: "smooth" });
   }, true);
 
+  // Don't touch Framer's DOM until React has hydrated it: editing server HTML first causes React #418/#422
+  // hydration mismatches (re-render, flicker). Hydrated = every Framer layer has a React fiber attached.
+  const T0 = performance.now(); let hyd = false;
+  function hydrated() {
+    if (hyd) return true;
+    const m = document.getElementById("main");
+    if (!m || !Object.keys(m).some((k) => k.startsWith("__reactContainer"))) return performance.now() - T0 > 12000 && (hyd = true);
+    for (const e of m.querySelectorAll("[data-framer-name]")) if (!Object.keys(e).some((k) => k.startsWith("__reactFiber"))) return performance.now() - T0 > 12000 && (hyd = true);
+    window.__ibHydratedAt = Math.round(performance.now());
+    return (hyd = true);
+  }
+  (function wait() { if (hydrated()) mount(); else setTimeout(wait, 50); })();
   function mount() {
+    if (!hydrated()) return;
     const t = document.querySelector('[data-framer-name="Testimonials"]');
     const f = document.querySelector('[data-framer-name="Featured Works"]');
     if (f) patchFeatured(f);

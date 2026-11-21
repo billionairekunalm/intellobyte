@@ -289,3 +289,9 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
 #ib-snd.hint i{opacity:1;transform:translate(0,-50%)}
 #ib-snd.hint{box-shadow:0 0 0 0 rgba(139,109,255,.6);animation:ib-snd-ring 1.6s ease-out 3}
 @keyframes ib-snd-ring{0%{box-shadow:0 0 0 0 rgba(139,109,255,.55)}100%{box-shadow:0 0 0 16px rgba(139,109,255,0)}}
+
+/* footer: template Twitter/X + Facebook buttons only link to the generic x.com / facebook.com home pages; hide them */
+[data-framer-name="Social Media"]>[class*="-container"]:has(>a[href="https://x.com"]),
+[data-framer-name="Social Media"]>[class*="-container"]:has(>a[href="https://www.facebook.com/"]){display:none!important}
+/* footer quick links + Back To Top: template text is white on the light footer (unreadable) */
+[data-framer-name="Divider + Bottom"] [data-framer-name="Quick Link"] p,[data-framer-name="Divider + Bottom"] [data-framer-name="Back To Top"] p{color:#09090b!important;--framer-text-color:#09090b!important}
