@@ -45,6 +45,7 @@
     software: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M22 20 8 32l14 12M42 20l14 12-14 12M37 14 27 50"/></svg>',
     apps: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="19" y="6" width="26" height="52" rx="6"/><path d="M28 12h8M29 51h6"/></svg>',
     websites: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="11" width="52" height="42" rx="6"/><path d="M6 23h52M14 17h.01M20 17h.01M26 17h.01"/></svg>',
+    international: '<svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="32" r="24"/><path d="M8 32h48M32 8c7 7 10 15 10 24s-3 17-10 24M32 8c-7 7-10 15-10 24s3 17 10 24"/></svg>',
   };
   const PLAY = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5Z"/></svg>';
 
@@ -69,7 +70,7 @@
     return `<li class="ibd-card" data-k="${ch.key}" style="--i:${i}">
       <button type="button" class="ibd-btn" ${attrs}>
         <span class="ibd-poster">
-          <span class="ibd-glyph" aria-hidden="true">${ICONS[ch.key]}</span>
+          <span class="ibd-glyph" aria-hidden="true">${ICONS[ch.key] || ICONS.websites}</span>
           <span class="ibd-num" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
           ${bg}${soon}
           <span class="ibd-play" aria-hidden="true">${it.url && !id ? ARROW : PLAY}</span>
