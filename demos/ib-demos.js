@@ -235,6 +235,7 @@
     if (!a) return;
     a.setAttribute("data-ib-feat", "");
     if (a.getAttribute("href") !== "./#works") a.setAttribute("href", "./#works"); // React restores the template /work/ link
+    document.querySelectorAll('a[href^="./work/"],a[href^="/work/"]').forEach((x) => x.setAttribute("href", "./#works")); // hidden template cards
     const w = document.createTreeWalker(a, NodeFilter.SHOW_TEXT);
     for (let n; (n = w.nextNode());) { const v = FEAT.text[n.nodeValue.trim()]; if (v) n.nodeValue = v; }
     a.querySelectorAll("img").forEach((i) => { if (/0VrElWZWccBOKLdWFuKOXTqIki0/.test(i.src) && !i.src.includes("/ib/")) { i.removeAttribute("srcset"); i.src = FEAT.img; } });
