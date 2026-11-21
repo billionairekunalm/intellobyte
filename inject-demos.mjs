@@ -105,3 +105,10 @@ await writeFile("site/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
   <url><loc>https://www.intellobyte.in/services</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
 `);
+
+// Framer free-plan "Made in Framer" badge module was never mirrored (404 on every load). Serve an empty component
+// so the import succeeds and no badge/advert is shown.
+for (const d of await readdir("site/_fc/sites", { withFileTypes: true })) {
+  if (d.isDirectory()) await writeFile(join("site/_fc/sites", d.name, "PX9hIOIVM.B_-CJP7G.mjs"),
+    "// ponytail: stub for Framer's free-plan badge; renders nothing\nexport default function Badge() { return null; }\nexport const __FramerMetadata__ = {};\n");
+}
