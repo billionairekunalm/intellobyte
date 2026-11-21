@@ -21,10 +21,11 @@ for await (const f of walk("site")) {
   t = t.replace(/<link[^>]*rel="(?:shortcut )?icon"[^>]*>|<link[^>]*rel="apple-touch-icon"[^>]*>/g, "").replace("</head>", icons + "</head>");
   // link-preview card (WhatsApp/LinkedIn/X): brand image + real URL instead of the template's
   t = t.replace(/(<meta (?:property="og:image"|name="twitter:image") content=")[^"]*"/g, `$1http://localhost:3000/_fc/ib/og-image.png?v=${v}"`)
-       .replace(/(<meta property="og:url" content=")[^"]*"/, '$1https://www.intellobyte.in/"');
+       .replaceAll("https://intellobyte-v1.framer.website", "https://www.intellobyte.in"); // canonical + og:url -> real domain
   if (!t.includes('og:image:width')) t = t.replace('</head>', '<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:site_name" content="Intellobyte"></head>');
   // featured card linked to leftover template case studies: point it at the section instead (click opens the demo video)
   t = t.replace(/href="\.\/work\/[^"]*"/g, 'href="./#works"');
+  { const c = /<link rel="canonical" href="([^"]*)"/.exec(t); if (c) t = t.replace(/(<meta property="og:url" content=")[^"]*"/, `$1${c[1]}"`); } // og:url = canonical
   // below-the-fold images: don't fetch/decode until needed (first 6 stay eager for the hero)
   let k = 0;
   t = t.replace(/<img(?![^>]*loading=)/g, (m) => (++k > 6 ? '<img loading="lazy" decoding="async"' : m));
@@ -82,3 +83,25 @@ console.log("demo section installed in", n, "pages");
   const out = t.replace(/layoutId:`[^`]*`,/g, "").replace(/layoutDependency:[A-Za-z_$],/g, "");
   if (out !== t) { await writeFile(p, out); console.log("service pills: layout projection removed"); }
 }
+
+// SEO: Framer's runtime also carries the old address as siteCanonicalURL; point it at the real domain. Idempotent.
+for (const d of await readdir("site/_fc/sites", { withFileTypes: true })) {
+  if (!d.isDirectory()) continue;
+  for (const f of await readdir(join("site/_fc/sites", d.name))) {
+    if (!f.endsWith(".mjs")) continue;
+    const p = join("site/_fc/sites", d.name, f), t = await readFile(p, "utf8");
+    if (t.includes("intellobyte-v1.framer.website")) await writeFile(p, t.replaceAll("https://intellobyte-v1.framer.website", "https://www.intellobyte.in"));
+  }
+}
+await writeFile("site/robots.txt", `User-agent: *
+Allow: /
+Disallow: /work/
+
+Sitemap: https://www.intellobyte.in/sitemap.xml
+`);
+await writeFile("site/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://www.intellobyte.in/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.intellobyte.in/services</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+</urlset>
+`);

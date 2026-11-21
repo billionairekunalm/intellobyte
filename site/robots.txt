@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /work/
+
+Sitemap: https://www.intellobyte.in/sitemap.xml
