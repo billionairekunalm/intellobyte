@@ -620,3 +620,18 @@
   add(); addEventListener("DOMContentLoaded", add); setInterval(add, 3000);
   try { if (!localStorage.getItem(KEY + "-hint") && on) { localStorage.setItem(KEY + "-hint", 1); setTimeout(() => b.classList.add("hint"), 2500); setTimeout(() => b.classList.remove("hint"), 7500); } } catch (_) {}
 })();
+
+// "Get Started" (under "We work with powerful Dev tools") linked to "./" and did nothing: open WhatsApp chat instead.
+(function () {
+  const WA = "https://wa.me/917666596339?text=" + encodeURIComponent("Hi Intellobyte! I'd like to start a project with you. Can we talk?");
+  const isGS = (a) => /^get started$/i.test((a.textContent || "").trim());
+  addEventListener("click", (e) => {
+    const a = e.target.closest && e.target.closest("a");
+    if (!a || !isGS(a)) return;
+    e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+    window.open(WA, "_blank", "noopener");
+  }, true);
+  // real link too (long-press / middle-click / crawlers); attribute-only, set after load so hydration is untouched
+  const fix = () => document.querySelectorAll('#main a[href="./"]').forEach((a) => { if (isGS(a)) { a.href = WA; a.target = "_blank"; a.rel = "noopener"; a.setAttribute("aria-label", "Start your project on WhatsApp"); } });
+  addEventListener("load", () => setTimeout(fix, 2500)); setInterval(fix, 4000);
+})();
