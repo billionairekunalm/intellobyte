@@ -297,3 +297,4 @@ div:has(>canvas[data-paper-shaders]){background:radial-gradient(120% 55% at 15% 
 [data-framer-name="Divider + Bottom"] [data-framer-name="Quick Link"] p,[data-framer-name="Divider + Bottom"] [data-framer-name="Back To Top"] p{color:#09090b!important;--framer-text-color:#09090b!important}
 .ib-legal{display:block;margin-top:6px;font:500 14px/1.4 Urbanist,Inter,system-ui,sans-serif;color:#52525b;text-decoration:underline;text-underline-offset:3px;text-align:inherit}
 .ib-legal:hover{color:#6d4aff}
+.ib-legal-row{display:block;margin-top:6px;color:#52525b;font:500 14px/1.4 Urbanist,Inter,system-ui,sans-serif}.ib-legal-row .ib-legal{margin:0}

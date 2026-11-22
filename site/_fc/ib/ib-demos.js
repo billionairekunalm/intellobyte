@@ -640,11 +640,14 @@
 (function () {
   const add = () => {
     document.querySelectorAll('[data-framer-name="Divider + Bottom"] p').forEach((p) => {
-      if (!/All Rights Reserved/i.test(p.textContent) || p.parentElement.querySelector(".ib-legal") || p.getBoundingClientRect().width === 0) return;
+      if (!/All Rights Reserved/i.test(p.textContent) || p.parentElement.querySelector(".ib-legal-row") || p.getBoundingClientRect().width === 0) return;
       const a = document.createElement("a");
       a.className = "ib-legal"; a.href = "/privacy-policy"; a.textContent = "Privacy Policy";
       a.style.textAlign = getComputedStyle(p).textAlign; // same alignment as the copyright line
-      p.insertAdjacentElement("afterend", a);
+      const tm = a.cloneNode(); tm.href = "/terms"; tm.textContent = "Terms of Service";
+      const row = document.createElement("span"); row.className = "ib-legal-row"; row.style.textAlign = a.style.textAlign;
+      row.append(a, " · ", tm); a.style.display = tm.style.display = "inline";
+      p.insertAdjacentElement("afterend", row);
     });
   };
   addEventListener("load", () => setTimeout(add, 2500)); setInterval(add, 3000);

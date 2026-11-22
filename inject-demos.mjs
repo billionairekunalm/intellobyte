@@ -110,6 +110,7 @@ await writeFile("site/sitemap.xml", `<?xml version="1.0" encoding="UTF-8"?>
   <url><loc>https://www.intellobyte.in/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://www.intellobyte.in/services</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.intellobyte.in/privacy-policy</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://www.intellobyte.in/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority></url>
 </urlset>
 `);
 
