@@ -17,7 +17,10 @@ export async function GET(req, { params }) {
   let f = normalize(join(ROOT, ...path));
   if (!f.startsWith(ROOT)) return new Response("forbidden", { status: 403 });
   try { if ((await stat(f)).isDirectory()) f = join(f, "index.html"); }
-  catch { return notFound(); } // unknown address: real 404, not the home page
+  catch { // standalone pages (site/privacy-policy.html -> /privacy-policy); anything else is a real 404
+    if (extname(f) || !(await stat(f + ".html").catch(() => null))) return notFound();
+    f += ".html";
+  }
   try {
     const ext = extname(f), buf = await readFile(f);
     // optimized PNGs are WebP bytes under the old .png name: serve the real type

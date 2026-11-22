@@ -635,3 +635,17 @@
   const fix = () => document.querySelectorAll('#main a[href="./"]').forEach((a) => { if (isGS(a)) { a.href = WA; a.target = "_blank"; a.rel = "noopener"; a.setAttribute("aria-label", "Start your project on WhatsApp"); } });
   addEventListener("load", () => setTimeout(fix, 2500)); setInterval(fix, 4000);
 })();
+
+// Footer: Privacy Policy link next to the copyright (added after hydration, so React's HTML is untouched)
+(function () {
+  const add = () => {
+    document.querySelectorAll('[data-framer-name="Divider + Bottom"] p').forEach((p) => {
+      if (!/All Rights Reserved/i.test(p.textContent) || p.parentElement.querySelector(".ib-legal") || p.getBoundingClientRect().width === 0) return;
+      const a = document.createElement("a");
+      a.className = "ib-legal"; a.href = "/privacy-policy"; a.textContent = "Privacy Policy";
+      a.style.textAlign = getComputedStyle(p).textAlign; // same alignment as the copyright line
+      p.insertAdjacentElement("afterend", a);
+    });
+  };
+  addEventListener("load", () => setTimeout(add, 2500)); setInterval(add, 3000);
+})();
