@@ -158,3 +158,91 @@ for (const d of await readdir("site/_fc/sites", { withFileTypes: true })) {
     if (t !== t0) await writeFile(f, t);
   }
 }
+
+// ---- SEO + accessibility (server HTML and Framer code changed together, so hydration stays clean). Idempotent. ----
+{
+  const HOME = { t: "Intellobyte | Web Development & Software Company in Pune",
+    d: "Intellobyte is a web development and software company in Pune, India. We build websites, custom software, iOS & Android apps and AI automation for businesses in Pune and worldwide." };
+  const SVC = { t: "Web Development, App & Software Services in Pune | Intellobyte",
+    d: "Website development, custom software, iOS & Android app development, UI/UX design and AI automation services in Pune by Intellobyte. Get a free quote for your project." };
+  const LD = { "@context": "https://schema.org", "@graph": [
+    { "@type": "ProfessionalService", "@id": "https://www.intellobyte.in/#org", name: "Intellobyte", alternateName: "Intellobyte Tech Solution",
+      description: HOME.d, url: "https://www.intellobyte.in/", logo: "https://www.intellobyte.in/_fc/ib/icon-512.png", image: "https://www.intellobyte.in/_fc/ib/og-image.png",
+      telephone: "+91-7666596339", email: "info@intellobyte.com", priceRange: "₹₹",
+      address: { "@type": "PostalAddress", addressLocality: "Pune", addressRegion: "Maharashtra", addressCountry: "IN" },
+      areaServed: [{ "@type": "City", name: "Pune" }, { "@type": "Country", name: "India" }, "Worldwide"],
+      sameAs: ["https://www.linkedin.com/company/intellobyte/", "https://www.instagram.com/intellobyte/"],
+      makesOffer: ["Website Development", "Custom Software Development", "iOS & Android App Development", "UI/UX Design", "AI & Automation"]
+        .map((n) => ({ "@type": "Offer", itemOffered: { "@type": "Service", name: n + " in Pune" } })) },
+    { "@type": "WebSite", "@id": "https://www.intellobyte.in/#site", url: "https://www.intellobyte.in/", name: "Intellobyte", publisher: { "@id": "https://www.intellobyte.in/#org" } },
+  ] };
+  // contact form: random Framer field ids -> readable names (they appear as labels in the enquiry emails)
+  const FIELDS = { "Interested In": ["L2V3IZbIQ", "ie4L5hiuUL2V3IZbIQ", "jr5AiQ8ubL2V3IZbIQ", "hmun05hPE", "AyC_NLXyLhmun05hPE", "MyG4bTCk_hmun05hPE"],
+    "Project Details": ["d4jIeetve", "ie4L5hiuUd4jIeetve", "jr5AiQ8ubd4jIeetve", "T5g3yqIbT", "AyC_NLXyLT5g3yqIbT", "MyG4bTCk_T5g3yqIbT"] };
+  // one H1 per page: the hero's second line becomes a <p>, the contact heading an <h2> (same classes, same look)
+  const RETAG = [[/^(Partner|Full-Stack AI)$/, "p"], [/^Let.s Build\s+Intelligent Things$/, "h2"]];
+  const ALT = [ // section marker in the HTML -> alt text for images inside it
+    ['id="home"', "Intellobyte – web development and software company in Pune"],
+    ['id="about"', "Intellobyte team building software and websites in Pune"],
+    ['id="services"', "Web development, app and software services by Intellobyte, Pune"],
+    ['data-framer-name="Featured Works"', "CBCT Center Software built by Intellobyte"],
+    ['data-framer-name="Team Members"', "Intellobyte team member"],
+    ['data-framer-name="Statistics"', "Intellobyte projects and clients"],
+    ['data-framer-name="Awards"', "Client project by Intellobyte"],
+    ['id="contact"', "Contact Intellobyte, web development company in Pune"],
+  ];
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+
+  for await (const f of walk("site")) {
+    if (f.includes(join("site", "work"))) continue;
+    const svc = f.includes(join("site", "services"));
+    const M = svc ? SVC : HOME;
+    const t0 = await readFile(f, "utf8");
+    let t = t0
+      .replace(/<title>[^<]*<\/title>/, `<title>${M.t.replace(/&/g, "&amp;")}</title>`)
+      .replace(/(<meta (?:name="description"|property="og:description"|name="twitter:description") content=")[^"]*"/g, `$1${esc(M.d)}"`)
+      .replace(/(<meta (?:property="og:title"|name="twitter:title") content=")[^"]*"/g, `$1${esc(M.t)}"`)
+      .replace(/<script type="application\/ld\+json" data-ib>[^]*?<\/script>/, "");
+    t = t.replace("</head>", `<script type="application/ld+json" data-ib>${JSON.stringify(LD)}</script></head>`);
+    // headings
+    t = t.replace(/<h1([^>]*)>([^]*?)<\/h1>/g, (m, a, inner) => {
+      const txt = inner.replace(/<[^>]+>/g, "").replace(/&[^;]+;/g, "'").trim();
+      const r = RETAG.find(([re]) => re.test(txt)); return r ? `<${r[1]}${a}>${inner}</${r[1]}>` : m;
+    });
+    // form
+    t = t.replace(/<input type="(text|email)" name="(Name|Email)"(?! required)/g, '<input type="$1" name="$2" required');
+    for (const [nm, ids] of Object.entries(FIELDS)) for (const id of ids) t = t.replaceAll(`name="${id}"`, `name="${nm}"`);
+    // alt text for images with none
+    const marks = []; for (const [k, alt] of ALT) { let i = -1; while ((i = t.indexOf(k, i + 1)) !== -1) marks.push([i, alt]); }
+    marks.sort((a, b) => a[0] - b[0]);
+    const mainAt = t.indexOf('id="main"');
+    t = t.replace(/<img\b[^>]*>/g, (tag, at) => {
+      if (/\salt="[^"]+"/.test(tag) || at < mainAt) return tag;
+      let alt = svc ? SVC.t.split(" | ")[0] : HOME.t.split(" | ")[1];
+      for (const [p, a] of marks) { if (p < at) alt = a; else break; }
+      alt = /logo/i.test(tag) ? "Intellobyte logo" : alt;
+      return tag.replace(/\salt(="")?(?=[\s>/])/, "").replace(/^<img/, `<img alt="${esc(alt)}"`);
+    });
+    if (t !== t0) await writeFile(f, t);
+  }
+
+  const dir = "site/_fc/sites";
+  for (const d of await readdir(dir, { withFileTypes: true })) {
+    if (!d.isDirectory()) continue;
+    for (const fn of await readdir(join(dir, d.name))) {
+      if (!fn.endsWith(".mjs")) continue;
+      const p = join(dir, d.name, fn), t0 = await readFile(p, "utf8");
+      let t = t0;
+      // page metadata Framer applies in the browser: per page title/description
+      t = t.replace("description:`Intellobyte Tech Solution builds software apps and websites that industry needs: custom software, UI/UX, AI & automation, web development and business systems.`",
+        `description:(typeof location<"u"&&/^\\/services/.test(location.pathname)?${JSON.stringify(SVC.d)}:${JSON.stringify(HOME.d)})`)
+        .replace("title:`Intellobyte | Software, Web & App Development`", `title:(typeof location<"u"&&/^\\/services/.test(location.pathname)?${JSON.stringify(SVC.t)}:${JSON.stringify(HOME.t)})`);
+      t = t.replace(/`h1`(,\{className:`framer-styles-preset-we9jkf`(?:(?!`h1`)[^]){0,900}?children:`(Partner|Full-Stack AI)`)/g, "`p`$1")
+           .replace(/`h1`(,\{className:`framer-styles-preset-we9jkf`(?:(?!`h1`)[^]){0,900}?children:`Let’s Build {2}Intelligent Things`)/g, "`h2`$1");
+      t = t.replace("inputName:`Name`,placeholder:`Enter your full name`,type:`text`}", "inputName:`Name`,placeholder:`Enter your full name`,type:`text`,required:!0}")
+           .replace("inputName:`Email`,placeholder:`Enter the e-mail`,type:`email`}", "inputName:`Email`,placeholder:`Enter the e-mail`,type:`email`,required:!0}");
+      for (const [nm, ids] of Object.entries(FIELDS)) for (const id of ids) t = t.replaceAll("inputName:`" + id + "`", "inputName:`" + nm + "`");
+      if (t !== t0) await writeFile(p, t);
+    }
+  }
+}

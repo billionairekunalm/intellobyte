@@ -59,10 +59,10 @@
   const reduce = matchMedia("(prefers-reduced-motion: reduce)");
 
   function card(ch, it, i) {
-    const id = ytId(it.yt);
-    const bg = it.img ? `<img class="ibd-img" loading="lazy" alt="" src="${BASE}${esc(it.img)}">`
-      : id ? `<img class="ibd-img" loading="lazy" alt="" src="https://i.ytimg.com/vi/${id}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${id}/mqdefault.jpg'">`
-      : it.img ? `<img class="ibd-img" loading="lazy" alt="" src="${BASE}${esc(it.img)}">` : "";
+    const id = ytId(it.yt), alt = esc(it.title + " – " + ch.label.replace(/s$/, "") + " project by Intellobyte");
+    const bg = it.img ? `<img class="ibd-img" loading="lazy" alt="${alt}" src="${BASE}${esc(it.img)}">`
+      : id ? `<img class="ibd-img" loading="lazy" alt="${alt}" src="https://i.ytimg.com/vi/${id}/maxresdefault.jpg" onerror="this.onerror=null;this.src='https://i.ytimg.com/vi/${id}/mqdefault.jpg'">`
+      : it.img ? `<img class="ibd-img" loading="lazy" alt="${alt}" src="${BASE}${esc(it.img)}">` : "";
     const soon = id ? "" : it.url ? '<span class="ibd-soon">Live website</span>' : '<span class="ibd-soon">Demo coming soon</span>';
     const attrs = id ? `data-yt="${id}"${/shorts\//.test(it.yt) ? ' data-short="1"' : ""} aria-label="Play demo: ${esc(it.title)}"`
       : it.url ? `data-url="${esc(it.url)}" aria-label="Open website: ${esc(it.title)}"`
@@ -340,7 +340,8 @@
   function patchLogos() {
     document.querySelectorAll(".framer-662aja:not([data-ib-logos])").forEach((w) => {
       w.setAttribute("data-ib-logos", "");
-      const li = LOGOS.map(([n, r]) => `<li><img src="${BASE}assets/logo-${n}.webp" alt="" style="height:${r < 1.3 ? 46 : r < 1.8 ? 40 : 34}px"></li>`).join("");
+      const LN = { imaging: "Imaging Dental Solutions", investmore: "InvestMore", vishwaharsh: "Vishwaharsh", everlush: "Everlush", ramaastra: "RamaAstra", dyp2: "DYP Incubation Foundation", heimstadt: "Heimstadt", gdm: "GDM Construction", gargees: "Gargees" };
+      const li = LOGOS.map(([n, r]) => `<li><img src="${BASE}assets/logo-${n}.webp" alt="${LN[n] || n} logo, Intellobyte client" style="height:${r < 1.3 ? 46 : r < 1.8 ? 40 : 34}px"></li>`).join("");
       const box = document.createElement("div");
       box.className = "ibl";
       box.setAttribute("aria-label", "Brands we have worked with");
@@ -432,8 +433,18 @@
     return (hyd = true);
   }
   (function wait() { if (hydrated()) mount(); else setTimeout(wait, 50); })();
+  const ALTS = [["#home", "Intellobyte – web development and software company in Pune"], ["#about", "Intellobyte team building software and websites in Pune"],
+    ["#services", "Web development, app and software services by Intellobyte, Pune"], ['[data-framer-name="Team Members"]', "Intellobyte team member"],
+    ['[data-framer-name="Awards"]', "Client project by Intellobyte"], ["#contact", "Contact Intellobyte, web development company in Pune"]];
+  function fillAlts() { // images React rendered after load (or reset) without a description
+    document.querySelectorAll("#main img:not([alt]),#main img[alt='']").forEach((im) => {
+      const hit = ALTS.find(([sel]) => im.closest(sel));
+      im.alt = hit ? hit[1] : "Intellobyte – web development company in Pune";
+    });
+  }
   function mount() {
     if (!hydrated()) return;
+    fillAlts();
     const t = document.querySelector('[data-framer-name="Testimonials"]');
     const f = document.querySelector('[data-framer-name="Featured Works"]');
     if (f) patchFeatured(f);
