@@ -132,6 +132,7 @@ for (const d of await readdir("site/_fc/sites", { withFileTypes: true })) {
     // hidden template "NEW TEMPLATE" button linking to the Framer marketplace
     ["https://www.framer.com/community/marketplace/templates/67833/", "https://www.intellobyte.in/"],
     ["children:`NEW TEMPLATE`", "children:``"],
+    ["`Founder, Yodha Electronics, Delhi`", "``"], // template testimonial role (hidden card)
   ];
   const dir = "site/_fc/sites";
   for (const d of await readdir(dir, { withFileTypes: true })) {
@@ -140,7 +141,7 @@ for (const d of await readdir("site/_fc/sites", { withFileTypes: true })) {
       if (!/\.(mjs|json)$/.test(f)) continue;
       const p = join(dir, d.name, f), t0 = await readFile(p, "utf8");
       let t = t0; for (const [a, b] of CODE) t = t.replaceAll(a, b);
-      t = t.replaceAll("UPTIME FOR KEY FLOWS", "Brands Served").replaceAll("OUR GROWTH", "Websites Delivered"); // search index
+      t = t.replaceAll("Founder, Yodha Electronics, Delhi", "").replaceAll("UPTIME FOR KEY FLOWS", "Brands Served").replaceAll("OUR GROWTH", "Websites Delivered"); // search index
       if (t !== t0) await writeFile(p, t);
     }
   }
@@ -151,7 +152,7 @@ for (const d of await readdir("site/_fc/sites", { withFileTypes: true })) {
     const t0 = await readFile(f, "utf8");
     let t = t0.replaceAll(QUOTE_OLD, QUOTE_NEW)
       .replaceAll("https://www.framer.com/community/marketplace/templates/67833/", "https://www.intellobyte.in/")
-      .replaceAll(">NEW TEMPLATE<", "><");
+      .replaceAll(">NEW TEMPLATE<", "><").replaceAll(">Founder, Yodha Electronics, Delhi<", "><");
     t = stat(t, "OUR GROWTH", "230", "K", "Websites Delivered", "100", "+");
     t = stat(t, "UPTIME FOR KEY FLOWS", "95", "%", "Brands Served", "50", "+");
     if (t !== t0) await writeFile(f, t);
