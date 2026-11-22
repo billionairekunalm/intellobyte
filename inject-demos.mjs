@@ -118,3 +118,42 @@ for (const d of await readdir("site/_fc/sites", { withFileTypes: true })) {
   if (d.isDirectory()) await writeFile(join("site/_fc/sites", d.name, "PX9hIOIVM.B_-CJP7G.mjs"),
     "// ponytail: stub for Framer's free-plan badge; renders nothing\nexport default function Badge() { return null; }\nexport const __FramerMetadata__ = {};\n");
 }
+
+// Content fixes applied to BOTH the server HTML and Framer's client code, so they stay identical (no hydration
+// mismatch) and Google reads the same thing visitors see. Idempotent.
+{
+  const QUOTE_OLD = "We saw a 2× increase in leads after the campaign.";
+  const QUOTE_NEW = "From dental clinics to trading floors, our software runs real businesses every day.";
+  const CODE = [ // [from, to] in Framer modules
+    [QUOTE_OLD, QUOTE_NEW],
+    // phone/tablet stats slideshow: template numbers -> the same real numbers desktop shows
+    ["UbJWZUv36:`K`,uQJLaiAY3:`OUR GROWTH`,variant:Ks(`bSMvDR3DK`),Waf0ZsqkX:`230`", "UbJWZUv36:`+`,uQJLaiAY3:`Websites Delivered`,variant:Ks(`bSMvDR3DK`),Waf0ZsqkX:`100`"],
+    ["UbJWZUv36:`%`,uQJLaiAY3:`UPTIME FOR KEY FLOWS`,variant:Ks(`bSMvDR3DK`),Waf0ZsqkX:`95`", "UbJWZUv36:`+`,uQJLaiAY3:`Brands Served`,variant:Ks(`bSMvDR3DK`),Waf0ZsqkX:`50`"],
+    // hidden template "NEW TEMPLATE" button linking to the Framer marketplace
+    ["https://www.framer.com/community/marketplace/templates/67833/", "https://www.intellobyte.in/"],
+    ["children:`NEW TEMPLATE`", "children:``"],
+  ];
+  const dir = "site/_fc/sites";
+  for (const d of await readdir(dir, { withFileTypes: true })) {
+    if (!d.isDirectory()) continue;
+    for (const f of await readdir(join(dir, d.name))) {
+      if (!/\.(mjs|json)$/.test(f)) continue;
+      const p = join(dir, d.name, f), t0 = await readFile(p, "utf8");
+      let t = t0; for (const [a, b] of CODE) t = t.replaceAll(a, b);
+      t = t.replaceAll("UPTIME FOR KEY FLOWS", "Brands Served").replaceAll("OUR GROWTH", "Websites Delivered"); // search index
+      if (t !== t0) await writeFile(p, t);
+    }
+  }
+  // server HTML: each stat label is followed by its number and unit
+  const stat = (t, label, num, unit, nLabel, nNum, nUnit) => t.replace(new RegExp(`>${label}<([^]{0,6000}?)>${num}<([^]{0,3000}?)>${unit === "%" ? "%" : unit}<`, "g"),
+    (m, a, b) => `>${nLabel}<${a}>${nNum}<${b}>${nUnit}<`);
+  for await (const f of walk("site")) {
+    const t0 = await readFile(f, "utf8");
+    let t = t0.replaceAll(QUOTE_OLD, QUOTE_NEW)
+      .replaceAll("https://www.framer.com/community/marketplace/templates/67833/", "https://www.intellobyte.in/")
+      .replaceAll(">NEW TEMPLATE<", "><");
+    t = stat(t, "OUR GROWTH", "230", "K", "Websites Delivered", "100", "+");
+    t = stat(t, "UPTIME FOR KEY FLOWS", "95", "%", "Brands Served", "50", "+");
+    if (t !== t0) await writeFile(f, t);
+  }
+}
