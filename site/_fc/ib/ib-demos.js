@@ -487,8 +487,7 @@
     const txt = (a.textContent || "").trim().toLowerCase();
     const h = a.getAttribute("href") || "";
     let id = "";
-    if (/^(contact|contact us|start a project)$/.test(txt) && /^\.\/?$/.test(h)) id = "contact";
-    else if (txt === "services" && /^\.\/services/.test(h)) id = "services";
+    if (txt === "services" && /^\.\/services/.test(h)) id = "services";
     if (id && go(id)) { e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); }
   }, true);
 })();
@@ -621,10 +620,10 @@
   try { if (!localStorage.getItem(KEY + "-hint") && on) { localStorage.setItem(KEY + "-hint", 1); setTimeout(() => b.classList.add("hint"), 2500); setTimeout(() => b.classList.remove("hint"), 7500); } } catch (_) {}
 })();
 
-// "Get Started" (under "We work with powerful Dev tools") linked to "./" and did nothing: open WhatsApp chat instead.
+// Every contact button (Get Started, Contact, Contact Us, Start a Project, the phone number) opens a WhatsApp chat.
 (function () {
   const WA = "https://wa.me/917666596339?text=" + encodeURIComponent("Hi Intellobyte! I'd like to start a project with you. Can we talk?");
-  const isGS = (a) => /^get started$/i.test((a.textContent || "").trim());
+  const isGS = (a) => /^(get started|contact|contact us|start a project)$/i.test((a.textContent || "").trim()) || /^(tel:|https:\/\/wa\.me\/)/.test(a.getAttribute("href") || "");
   addEventListener("click", (e) => {
     const a = e.target.closest && e.target.closest("a");
     if (!a || !isGS(a)) return;
@@ -632,7 +631,7 @@
     window.open(WA, "_blank", "noopener");
   }, true);
   // real link too (long-press / middle-click / crawlers); attribute-only, set after load so hydration is untouched
-  const fix = () => document.querySelectorAll('#main a[href="./"]').forEach((a) => { if (isGS(a)) { a.href = WA; a.target = "_blank"; a.rel = "noopener"; a.setAttribute("aria-label", "Start your project on WhatsApp"); } });
+  const fix = () => document.querySelectorAll('#main a[href="./"],#main a[href^="tel:"]').forEach((a) => { if (isGS(a)) { a.href = WA; a.target = "_blank"; a.rel = "noopener"; a.setAttribute("aria-label", "Start your project on WhatsApp"); } });
   addEventListener("load", () => setTimeout(fix, 2500)); setInterval(fix, 4000);
 })();
 
